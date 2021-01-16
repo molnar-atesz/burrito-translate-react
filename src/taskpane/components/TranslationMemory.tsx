@@ -10,7 +10,7 @@ export interface ITranslationMemoryProps {
     items: ITranslationMemoryItem[];
 }
 
-export default class TransationMemory extends React.Component<ITranslationMemoryProps>{
+export default class TranslationMemory extends React.Component<ITranslationMemoryProps>{
     insertWord = async (item: ITranslationMemoryItem) => {
         await Word.run(async (context) => {
             let body = context.document.body;
@@ -20,10 +20,10 @@ export default class TransationMemory extends React.Component<ITranslationMemory
     }
 
     public render() {
-        const { children, items } = this.props;
+        const { items } = this.props;
 
         const memoryItems = items.map((item, _) =>(
-            <tr onClick={() => { this.insertWord(item) } }>
+            <tr key={item.en} onClick={() => { this.insertWord(item) } }>
                 <td>
                     {item.en}
                 </td>
@@ -49,7 +49,6 @@ export default class TransationMemory extends React.Component<ITranslationMemory
                         {memoryItems}
                     </tbody>
                 </table>
-                {children}
             </main>
         );
     }
