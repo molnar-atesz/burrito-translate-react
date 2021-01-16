@@ -3,12 +3,11 @@ import * as React from "react";
 import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
-import Header from "./Header";
+import NewItem from "./NewItem";
 import TranslationMemory, { ITranslationMemoryItem } from "./TranslationMemory";
 /* global Button Header, HeroList, HeroListItem, Progress, Word */
 
 export interface AppProps {
-  title: string;
   isOfficeInitialized: boolean;
 }
 
@@ -22,6 +21,14 @@ export default class App extends React.Component<AppProps, AppState> {
     this.state = {
       memoryItems: []
     };
+
+    this.addWord = this.addWord.bind(this);
+  }
+
+  addWord(word: ITranslationMemoryItem) {
+    this.setState({
+      memoryItems: [ ...this.state.memoryItems, word ]
+    });
   }
 
   componentDidMount() {
@@ -48,7 +55,7 @@ export default class App extends React.Component<AppProps, AppState> {
   render() {
     return (
       <div className="ms-welcome">
-      <Header message="Wrap me a burrito" title="Burrito Translate" logo="assets/logo-filled.png"></Header>
+      <NewItem addWord={this.addWord}></NewItem>
       <TranslationMemory items={this.state.memoryItems} ></TranslationMemory>
       </div>
     );
