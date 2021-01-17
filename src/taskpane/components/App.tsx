@@ -122,7 +122,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
           }
           
           <div className="ms-Grid-row">
-            <div className="ms-Grid-col">
+            <div className="ms-Grid-col ms-sm-12">
               <TranslationMemory items={this.state.memory}></TranslationMemory>
             </div>
           </div>

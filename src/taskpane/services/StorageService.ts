@@ -37,8 +37,9 @@ export default class StorageService {
           const items = xmlDoc.getElementsByTagName("item");
           for (let i = 0; i < items.length; i++) {
             const item = items[i];
-
+            
             memory.push({
+              key: i.toString(),
               hu: item.getAttribute("hu"),
               en: item.getAttribute("en"),
               note: item.getAttribute("note")
