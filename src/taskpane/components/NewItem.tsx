@@ -29,7 +29,12 @@ export default class NewItem extends React.Component<INewItemProps, ITranslation
     }
 
     private save() {
-        this.props.addWord(this.state);
+        const normalized = {
+            hu: this.state.hu.trim(),
+            en: this.state.en.trim(),
+            note: this.state.note?.trim()
+        }
+        this.props.addWord(normalized);
         this.setState({ hu:"", en:"", note:"" });
     }
 

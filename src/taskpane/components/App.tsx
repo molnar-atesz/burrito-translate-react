@@ -1,4 +1,4 @@
-import { IStackProps, Stack } from "office-ui-fabric-react";
+import { CommandButton, IIconProps, IStackProps, Stack } from "office-ui-fabric-react";
 import { PrimaryButton } from "office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton";
 import { MessageBar } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar";
 import { MessageBarType } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar.types";
@@ -21,7 +21,8 @@ export interface IAppProps {
 
 export interface IAppState {
   memory: ITranslationMemoryItem[];
-  notification: INotificationProps
+  notification: INotificationProps,
+  edit: boolean
 }
 
 const verticalStackProps: IStackProps = {
@@ -36,6 +37,8 @@ const verticalStackProps: IStackProps = {
   verticalAlign: "end"
 }
 
+const addIcon: IIconProps = { iconName: 'Add' };
+
 export default class App extends React.Component<IAppProps, IAppState> {
   constructor(props, context) {
     super(props, context);
@@ -44,17 +47,26 @@ export default class App extends React.Component<IAppProps, IAppState> {
       notification: {
         message: '',
         messageBarType: MessageBarType.info
-      }
+      },
+      edit: false
     };
 
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.saveMemory = this.saveMemory.bind(this);
     this.load = this.load.bind(this);
+    this.edit = this.edit.bind(this);
+  }
+
+  edit() {
+    this.setState({
+      edit: !this.state.edit
+    })
   }
 
   addWord(word: ITranslationMemoryItem) {
     this.setState({
+      edit: false,
       memory: [...this.state.memory, word]
     });
   }
@@ -90,15 +102,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   componentDidMount() {
-    this.setState({
-      memory: [
-        {
-          en: "example",
-          hu: "példa",
-          note: "Ez egy példa kifejezés"
-        }
-      ]
-    });
+    this.load();
   }
 
   render() {
@@ -106,10 +110,17 @@ export default class App extends React.Component<IAppProps, IAppState> {
       <div>
         <div className="ms-Grid">
           <div className="ms-Grid-row">
+            <div className="ms-Grid-col">
+              <CommandButton iconProps={addIcon} text="Új szó" onClick={this.edit} />
+            </div>
+          </div>
+          {(!!this.state.edit) && <div className="ms-Grid-row">
             <div className="ms-Grid-col ms-smOffset2 ms-sm8">
               <NewItem addWord={this.addWord}></NewItem>
             </div>
           </div>
+          }
+          
           <div className="ms-Grid-row">
             <div className="ms-Grid-col">
               <TranslationMemory items={this.state.memory}></TranslationMemory>
