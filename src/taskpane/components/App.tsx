@@ -1,39 +1,72 @@
+import { IStackProps, Stack } from "office-ui-fabric-react";
+import { PrimaryButton } from "office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton";
+import { MessageBar } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar";
+import { MessageBarType } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar.types";
 import * as React from "react";
-// images references in the manifest
 import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 import NewItem from "./NewItem";
 import TranslationMemory, { ITranslationMemoryItem } from "./TranslationMemory";
-/* global Button Header, HeroList, HeroListItem, Progress, Word */
 
-export interface AppProps {
+export interface INotificationProps {
+  message: string;
+  messageBarType: MessageBarType
+}
+
+export interface IAppProps {
   isOfficeInitialized: boolean;
 }
 
-export interface AppState {
-  memoryItems: ITranslationMemoryItem[]
+export interface IAppState {
+  memory: ITranslationMemoryItem[];
+  notification: string
 }
 
-export default class App extends React.Component<AppProps, AppState> {
+const verticalStackProps: IStackProps = {
+  styles: { 
+    root: { 
+      overflow: 'hidden',
+      width: '100%',
+      position: "absolute",
+      bottom: '0px'
+    }
+  },
+  verticalAlign: "end"
+}
+
+export default class App extends React.Component<IAppProps, IAppState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      memoryItems: []
+      memory: [],
+      notification: ''
     };
 
     this.addWord = this.addWord.bind(this);
+    this.setNotification = this.setNotification.bind(this);
+    this.saveMemory = this.saveMemory.bind(this);
   }
 
   addWord(word: ITranslationMemoryItem) {
     this.setState({
-      memoryItems: [ ...this.state.memoryItems, word ]
+      memory: [ ...this.state.memory, word ]
     });
+  }
+
+  setNotification(message: string) {
+    this.setState({
+      notification: message
+    });
+  }
+
+  saveMemory() {
+    this.setNotification("Memory Saved");
   }
 
   componentDidMount() {
     this.setState({
-      memoryItems: [
+      memory: [
         {
           en: "Calculator",
           hu: "Számológép",
@@ -54,9 +87,37 @@ export default class App extends React.Component<AppProps, AppState> {
 
   render() {
     return (
-      <div className="ms-welcome">
-      <NewItem addWord={this.addWord}></NewItem>
-      <TranslationMemory items={this.state.memoryItems} ></TranslationMemory>
+      <div>
+        <div className="ms-Grid">
+          <div className="ms-Grid-row">
+            <div className="ms-Grid-col ms-smOffset2 ms-sm8">
+              <NewItem addWord={this.addWord}></NewItem>
+            </div>
+          </div>
+          <div className="ms-Grid-row">
+            <div className="ms-Grid-col ms-smOffset2 ms-sm8">
+              <TranslationMemory items={this.state.memory}></TranslationMemory>
+            </div>
+          </div>
+          <div className="ms-Grid-row">
+            <div className="ms-Grid-col ms-smOffset4 ms-sm5">
+              <PrimaryButton
+                data-automation-id='save'
+                text='Save memory'
+                onClick={ this.saveMemory } />
+            </div>
+          </div>
+        </div>
+        <Stack {...verticalStackProps}>
+            {(!!this.state.notification) && <MessageBar
+              messageBarType={MessageBarType.success}
+              isMultiline={false}
+              onDismiss={() => this.setNotification(undefined)}
+              dismissButtonAriaLabel="Close"
+              >
+              {this.state.notification}
+            </MessageBar>}
+        </Stack>
       </div>
     );
   }
