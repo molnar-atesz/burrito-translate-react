@@ -6,6 +6,7 @@ import * as React from "react";
 import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
+import StorageService from "../services/StorageService";
 import NewItem from "./NewItem";
 import TranslationMemory, { ITranslationMemoryItem } from "./TranslationMemory";
 
@@ -20,7 +21,7 @@ export interface IAppProps {
 
 export interface IAppState {
   memory: ITranslationMemoryItem[];
-  notification: string
+  notification: INotificationProps
 }
 
 const verticalStackProps: IStackProps = {
@@ -40,47 +41,62 @@ export default class App extends React.Component<IAppProps, IAppState> {
     super(props, context);
     this.state = {
       memory: [],
-      notification: ''
+      notification: {
+        message: '',
+        messageBarType: MessageBarType.info
+      }
     };
 
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.saveMemory = this.saveMemory.bind(this);
+    this.load = this.load.bind(this);
   }
 
   addWord(word: ITranslationMemoryItem) {
     this.setState({
-      memory: [ ...this.state.memory, word ]
+      memory: [...this.state.memory, word]
     });
   }
 
-  setNotification(message: string) {
+  setNotification(message: string, messageType?: MessageBarType) {
     this.setState({
-      notification: message
+      notification: {
+        message: message,
+        messageBarType: (!messageType) ? MessageBarType.info : messageType
+      }
     });
   }
 
   saveMemory() {
-    this.setNotification("Memory Saved");
+    StorageService.saveTranslationMemory(this.state.memory).then((_) => {
+      this.setNotification('Mentés sikeres.', MessageBarType.success);
+    }).catch(err => {
+      console.log(err);
+      this.setNotification('Hiba történt', MessageBarType.error);
+    });
+  }
+
+  load() {
+    StorageService.loadTranslationMemory().then((mem) =>{
+      this.setState({
+        memory: mem,
+        notification: {
+          message: 'Betöltés sikeres',
+          messageBarType: MessageBarType.success
+        }
+      });
+    });
   }
 
   componentDidMount() {
     this.setState({
       memory: [
         {
-          en: "Calculator",
-          hu: "Számológép",
-          note: "Ritkán használt"
-        },
-        {
-          en: "Kitty",
-          hu: "Kismacska",
-          note: "Csak ha szükség van rá"
-        },
-        {
-          en: "Strange",
-          hu: "Különös, furcsa"
-        },
+          en: "example",
+          hu: "példa",
+          note: "Ez egy példa kifejezés"
+        }
       ]
     });
   }
@@ -95,27 +111,33 @@ export default class App extends React.Component<IAppProps, IAppState> {
             </div>
           </div>
           <div className="ms-Grid-row">
-            <div className="ms-Grid-col ms-smOffset2 ms-sm8">
+            <div className="ms-Grid-col">
               <TranslationMemory items={this.state.memory}></TranslationMemory>
             </div>
           </div>
           <div className="ms-Grid-row">
-            <div className="ms-Grid-col ms-smOffset4 ms-sm5">
+            <div className="ms-Grid-col ms-smOffset1 ms-sm4">
               <PrimaryButton
                 data-automation-id='save'
-                text='Save memory'
+                text='Mentés'
                 onClick={ this.saveMemory } />
+            </div>
+            <div className="ms-Grid-col ms-smOffset1 ms-sm4">
+              <PrimaryButton
+                data-automation-id='load'
+                text='Betöltés'
+                onClick={ this.load } />
             </div>
           </div>
         </div>
         <Stack {...verticalStackProps}>
-            {(!!this.state.notification) && <MessageBar
-              messageBarType={MessageBarType.success}
-              isMultiline={false}
+            {(!!this.state.notification.message) && <MessageBar
+              messageBarType={this.state.notification.messageBarType}
+              isMultiline={true}
               onDismiss={() => this.setNotification(undefined)}
               dismissButtonAriaLabel="Close"
               >
-              {this.state.notification}
+              {this.state.notification.message}
             </MessageBar>}
         </Stack>
       </div>
