@@ -1,5 +1,4 @@
-import { CommandButton, IIconProps, IStackProps, Stack } from "office-ui-fabric-react";
-import { PrimaryButton } from "office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton";
+import { IStackProps, Stack } from "office-ui-fabric-react";
 import { MessageBar } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar";
 import { MessageBarType } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar.types";
 import * as React from "react";
@@ -7,6 +6,7 @@ import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 import StorageService from "../services/StorageService";
+import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
 import TranslationMemory, { ITranslationMemoryItem } from "./TranslationMemory";
 
@@ -37,8 +37,6 @@ const verticalStackProps: IStackProps = {
   verticalAlign: "end"
 }
 
-const addIcon: IIconProps = { iconName: 'Add' };
-
 export default class App extends React.Component<IAppProps, IAppState> {
   constructor(props, context) {
     super(props, context);
@@ -58,10 +56,11 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.edit = this.edit.bind(this);
   }
 
-  edit() {
+  edit(): boolean {
     this.setState({
       edit: !this.state.edit
     })
+    return true;
   }
 
   addWord(word: ITranslationMemoryItem) {
@@ -80,16 +79,17 @@ export default class App extends React.Component<IAppProps, IAppState> {
     });
   }
 
-  saveMemory() {
+  saveMemory(): boolean {
     StorageService.saveTranslationMemory(this.state.memory).then((_) => {
       this.setNotification('Mentés sikeres.', MessageBarType.success);
     }).catch(err => {
       console.log(err);
       this.setNotification('Hiba történt', MessageBarType.error);
     });
+    return true;
   }
 
-  load() {
+  load(): boolean {
     StorageService.loadTranslationMemory().then((mem) =>{
       this.setState({
         memory: mem,
@@ -99,6 +99,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
         }
       });
     });
+    return true;
   }
 
   componentDidMount() {
@@ -108,39 +109,19 @@ export default class App extends React.Component<IAppProps, IAppState> {
   render() {
     return (
       <div>
-        <div className="ms-Grid">
-          <div className="ms-Grid-row">
-            <div className="ms-Grid-col">
-              <CommandButton iconProps={addIcon} text="Új szó" onClick={this.edit} />
-            </div>
-          </div>
-          {(!!this.state.edit) && <div className="ms-Grid-row">
-            <div className="ms-Grid-col ms-smOffset2 ms-sm8">
+        <Stack tokens={{childrenGap: 10}}>
+          <Stack.Item align="stretch">
+              <ControlPanel onNew={this.edit} onLoad={this.load} onSave={this.saveMemory} />
+          </Stack.Item>
+          {(!!this.state.edit) && <Stack.Item align="start">
               <NewItem addWord={this.addWord}></NewItem>
-            </div>
-          </div>
+            </Stack.Item>
           }
-          
-          <div className="ms-Grid-row">
-            <div className="ms-Grid-col ms-sm-12">
+          <Stack.Item align="stretch">
               <TranslationMemory items={this.state.memory}></TranslationMemory>
-            </div>
-          </div>
-          <div className="ms-Grid-row">
-            <div className="ms-Grid-col ms-smOffset1 ms-sm4">
-              <PrimaryButton
-                data-automation-id='save'
-                text='Mentés'
-                onClick={ this.saveMemory } />
-            </div>
-            <div className="ms-Grid-col ms-smOffset1 ms-sm4">
-              <PrimaryButton
-                data-automation-id='load'
-                text='Betöltés'
-                onClick={ this.load } />
-            </div>
-          </div>
-        </div>
+          </Stack.Item>
+        </Stack>
+
         <Stack {...verticalStackProps}>
             {(!!this.state.notification.message) && <MessageBar
               messageBarType={this.state.notification.messageBarType}
