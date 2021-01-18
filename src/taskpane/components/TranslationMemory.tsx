@@ -14,7 +14,7 @@ import {
 import React = require("react");
 import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
-import { IconButton, IIconProps, ITooltipHostStyles, merge, TooltipHost } from 'office-ui-fabric-react';
+import { IconButton, IIconProps, ITooltipHostStyles, TooltipHost } from 'office-ui-fabric-react';
 
 export interface ITranslationMemoryItem {
     key: string,
@@ -52,7 +52,6 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 fieldName: 'en',
                 minWidth: 50,
                 maxWidth: 90,
-                isRowHeader: true,
                 isMultiline: true,
                 isResizable: true,
                 sortAscendingAriaLabel: 'Rendezés A..Z',
@@ -210,10 +209,10 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
     private _onRenderRow: IDetailsListProps['onRenderRow'] = props => {
         const customStyles: Partial<IDetailsRowStyles> = {};
         if (props) {
-            customStyles.root = { fontSize: '12px' };
+            customStyles.cell = { fontSize: '12px' };
             if (props.itemIndex % 2 === 0) {
                 // Every other row renders with a different background color
-                customStyles.root = merge(customStyles.root, { backgroundColor: theme.palette.themeLighterAlt });
+                customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
             }
 
             return <DetailsRow {...props} styles={customStyles} />;
@@ -225,7 +224,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         const fieldContent = item[column.fieldName as keyof ITranslationMemoryItem] as string;
         const commentIcon: IIconProps = { iconName: 'Comment' };
         const tooltipId = `note${index}`
-        const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block', alignContent: 'center' } };
+        const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
 
         if(column.fieldName === 'note' && !!fieldContent) {
             return (
