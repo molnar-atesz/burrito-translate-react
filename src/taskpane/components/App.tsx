@@ -113,7 +113,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
           <Stack.Item align="stretch">
               <ControlPanel onNew={this.edit} onLoad={this.load} onSave={this.saveMemory} />
           </Stack.Item>
-          {(!!this.state.edit) && <Stack.Item align="start">
+          {(!!this.state.edit) && <Stack.Item align="center">
               <NewItem addWord={this.addWord}></NewItem>
             </Stack.Item>
           }

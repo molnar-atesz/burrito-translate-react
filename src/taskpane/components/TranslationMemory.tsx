@@ -11,9 +11,12 @@ import {
     DetailsRowCheck,
     IDetailsRowCheckStyles,
     CheckboxVisibility,
+    IDetailsListProps,
+    IDetailsRowStyles,
   } from 'office-ui-fabric-react/lib/DetailsList';
 import React = require("react");
 import { IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
+import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 
 export interface ITranslationMemoryItem {
     key: string,
@@ -35,6 +38,8 @@ const stackTokens: IStackTokens = {
     childrenGap: 5,
 };
 
+const theme = getTheme()
+
 export default class TranslationMemory extends React.Component<ITranslationMemoryProps, ITranslationMemoryState>{
     private _selection: Selection;
     private _allItems: ITranslationMemoryItem[];
@@ -49,6 +54,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 fieldName: 'en',
                 minWidth: 50,
                 maxWidth: 90,
+                isMultiline: true,
                 isRowHeader: true,
                 isResizable: true,
                 isSorted: true,
@@ -60,37 +66,38 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 isPadded: true,
             },
             {
-              key: 'huCol',
-              name: 'Magyar',
-              fieldName: 'hu',
-              minWidth: 50,
-              maxWidth: 90,
-              isRowHeader: true,
-              isResizable: true,
-              isSorted: true,
-              isSortedDescending: false,
-              sortAscendingAriaLabel: 'Sorted A to Z',
-              sortDescendingAriaLabel: 'Sorted Z to A',
-              onColumnClick: this._onColumnClick,
-              data: 'string',
-              isPadded: true,
+                key: 'huCol',
+                name: 'Magyar',
+                fieldName: 'hu',
+                minWidth: 50,
+                maxWidth: 90,
+                isMultiline: true,
+                isRowHeader: true,
+                isResizable: true,
+                isSorted: true,
+                isSortedDescending: false,
+                sortAscendingAriaLabel: 'Sorted A to Z',
+                sortDescendingAriaLabel: 'Sorted Z to A',
+                onColumnClick: this._onColumnClick,
+                data: 'string',
+                isPadded: true,
             },
             {
-              key: 'noteCol',
-              name: 'Megjegyzés',
-              fieldName: 'note',
-              minWidth: 50,
-              maxWidth: 90,
-              isMultiline: true,
-              isRowHeader: true,
-              isResizable: true,
-              isSorted: true,
-              isSortedDescending: false,
-              sortAscendingAriaLabel: 'Sorted A to Z',
-              sortDescendingAriaLabel: 'Sorted Z to A',
-              onColumnClick: this._onColumnClick,
-              data: 'string',
-              isPadded: true,
+                key: 'noteCol',
+                name: 'Megjegyzés',
+                fieldName: 'note',
+                minWidth: 50,
+                maxWidth: 90,
+                isMultiline: true,
+                isRowHeader: true,
+                isResizable: true,
+                isSorted: true,
+                isSortedDescending: false,
+                sortAscendingAriaLabel: 'Sorted A to Z',
+                sortDescendingAriaLabel: 'Sorted Z to A',
+                onColumnClick: this._onColumnClick,
+                data: 'string',
+                isPadded: true,
             }
         ];
 
@@ -137,14 +144,16 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                             items={items}
                             columns={columns}
                             getKey={this._getKey}
+                            compact={true}
                             setKey="none"
                             selection={this._selection}
                             selectionMode={SelectionMode.single}
                             layoutMode={DetailsListLayoutMode.justified}
+                            checkboxVisibility={CheckboxVisibility.hidden}
                             selectionPreservedOnEmptyClick={true}
                             isHeaderVisible={true}
+                            onRenderRow={this._onRenderRow}
                             onRenderDetailsFooter={this._onRenderDetailsFooter}
-                            checkboxVisibility={CheckboxVisibility.hidden}
                         />
                     </Stack.Item>
                 </Stack>
@@ -203,6 +212,21 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         });
     }
 
+    private _onRenderRow: IDetailsListProps['onRenderRow'] = props => {
+        const customStyles: Partial<IDetailsRowStyles> = {};
+        if (props) {
+          if (props.itemIndex % 2 === 0) {
+            // Every other row renders with a different background color
+            customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
+          }
+
+          customStyles.cell = { fontSize: '12px' }
+    
+          return <DetailsRow {...props} styles={customStyles} />;
+        }
+        return null;
+      };
+
     private _onRenderDetailsFooter(detailsFooterProps: IDetailsFooterProps): JSX.Element {
         return (
           <DetailsRow
@@ -211,8 +235,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
             item={{}}
             itemIndex={-1}
             groupNestingDepth={detailsFooterProps.groupNestingDepth}
-            selectionMode={SelectionMode.single}
-            selection={detailsFooterProps.selection}
+            selectionMode={SelectionMode.none}
             onRenderItemColumn={_renderDetailsFooterItemColumn}
             onRenderCheck={_onRenderCheckForFooterRow}
           />
@@ -223,8 +246,8 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
 const _renderDetailsFooterItemColumn: IDetailsRowBaseProps['onRenderItemColumn'] = (_, __, column) => {
     if (column) {
         return (
-        <div>
-            <b>{column.name}</b>
+        <div className="ms-fontWeight-bold">
+            {column.fieldName}
         </div>
         );
     }
