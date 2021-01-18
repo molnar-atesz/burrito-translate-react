@@ -1,4 +1,4 @@
-import { TextField } from 'office-ui-fabric-react';
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import {
     DetailsList,
     DetailsListLayoutMode,
@@ -13,6 +13,7 @@ import {
     CheckboxVisibility,
   } from 'office-ui-fabric-react/lib/DetailsList';
 import React = require("react");
+import { IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 
 export interface ITranslationMemoryItem {
     key: string,
@@ -29,6 +30,10 @@ export interface ITranslationMemoryState {
     items: ITranslationMemoryItem[];
     columns: IColumn[];
 }
+
+const stackTokens: IStackTokens = {
+    childrenGap: 5,
+};
 
 export default class TranslationMemory extends React.Component<ITranslationMemoryProps, ITranslationMemoryState>{
     private _selection: Selection;
@@ -123,20 +128,26 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         return (
             <main className="ms-welcome__main">
                 <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Fordítási memória</h2>
-                <TextField label="Szűrés angol szóra:" name="search" onChange={this._onChangeText} />
-                <DetailsList
-                    items={items}
-                    columns={columns}
-                    getKey={this._getKey}
-                    setKey="none"
-                    selection={this._selection}
-                    selectionMode={SelectionMode.single}
-                    layoutMode={DetailsListLayoutMode.justified}
-                    selectionPreservedOnEmptyClick={true}
-                    isHeaderVisible={true}
-                    onRenderDetailsFooter={this._onRenderDetailsFooter}
-                    checkboxVisibility={CheckboxVisibility.hidden}
-                />
+                <Stack tokens={stackTokens}>
+                    <Stack.Item align="stretch">
+                        <SearchBox placeholder="Keresés" onChange={this._onChangeText } />
+                    </Stack.Item>
+                    <Stack.Item align="stretch">
+                        <DetailsList
+                            items={items}
+                            columns={columns}
+                            getKey={this._getKey}
+                            setKey="none"
+                            selection={this._selection}
+                            selectionMode={SelectionMode.single}
+                            layoutMode={DetailsListLayoutMode.justified}
+                            selectionPreservedOnEmptyClick={true}
+                            isHeaderVisible={true}
+                            onRenderDetailsFooter={this._onRenderDetailsFooter}
+                            checkboxVisibility={CheckboxVisibility.hidden}
+                        />
+                    </Stack.Item>
+                </Stack>
             </main>
         );
     }
