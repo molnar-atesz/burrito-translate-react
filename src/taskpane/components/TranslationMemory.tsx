@@ -6,17 +6,15 @@ import {
     IColumn,
     SelectionMode,
     DetailsRow,
-    IDetailsFooterProps,
-    IDetailsRowBaseProps,
-    DetailsRowCheck,
-    IDetailsRowCheckStyles,
     CheckboxVisibility,
     IDetailsListProps,
     IDetailsRowStyles,
+    ColumnActionsMode,
   } from 'office-ui-fabric-react/lib/DetailsList';
 import React = require("react");
 import { IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
+import { IconButton, IIconProps, ITooltipHostStyles, merge, TooltipHost } from 'office-ui-fabric-react';
 
 export interface ITranslationMemoryItem {
     key: string,
@@ -57,13 +55,11 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 isMultiline: true,
                 isRowHeader: true,
                 isResizable: true,
-                isSorted: true,
-                isSortedDescending: false,
                 sortAscendingAriaLabel: 'Sorted A to Z',
                 sortDescendingAriaLabel: 'Sorted Z to A',
                 onColumnClick: this._onColumnClick,
                 data: 'string',
-                isPadded: true,
+                isPadded: true
             },
             {
                 key: 'huCol',
@@ -72,32 +68,23 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 minWidth: 50,
                 maxWidth: 90,
                 isMultiline: true,
-                isRowHeader: true,
                 isResizable: true,
-                isSorted: true,
-                isSortedDescending: false,
-                sortAscendingAriaLabel: 'Sorted A to Z',
-                sortDescendingAriaLabel: 'Sorted Z to A',
+                sortAscendingAriaLabel: 'Rendezés növekvő',
+                sortDescendingAriaLabel: 'Rendezés csökkenő',
                 onColumnClick: this._onColumnClick,
                 data: 'string',
-                isPadded: true,
+                isPadded: true
             },
             {
                 key: 'noteCol',
-                name: 'Megjegyzés',
+                name: 'Jegyzet',
                 fieldName: 'note',
                 minWidth: 50,
-                maxWidth: 90,
-                isMultiline: true,
-                isRowHeader: true,
-                isResizable: true,
-                isSorted: true,
-                isSortedDescending: false,
-                sortAscendingAriaLabel: 'Sorted A to Z',
-                sortDescendingAriaLabel: 'Sorted Z to A',
-                onColumnClick: this._onColumnClick,
+                maxWidth: 50,
+                columnActionsMode: ColumnActionsMode.disabled,
+                isRowHeader: false,
+                isResizable: false,
                 data: 'string',
-                isPadded: true,
             }
         ];
 
@@ -137,7 +124,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Fordítási memória</h2>
                 <Stack tokens={stackTokens}>
                     <Stack.Item align="stretch">
-                        <SearchBox placeholder="Keresés" onChange={this._onChangeText } />
+                        <SearchBox placeholder="Keresés (angol)" onChange={this._onChangeText } />
                     </Stack.Item>
                     <Stack.Item align="stretch">
                         <DetailsList
@@ -153,7 +140,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                             selectionPreservedOnEmptyClick={true}
                             isHeaderVisible={true}
                             onRenderRow={this._onRenderRow}
-                            onRenderDetailsFooter={this._onRenderDetailsFooter}
+                            onRenderItemColumn={this._renderItemColumn}
                         />
                     </Stack.Item>
                 </Stack>
@@ -215,52 +202,51 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
     private _onRenderRow: IDetailsListProps['onRenderRow'] = props => {
         const customStyles: Partial<IDetailsRowStyles> = {};
         if (props) {
-          if (props.itemIndex % 2 === 0) {
-            // Every other row renders with a different background color
-            customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
-          }
+            customStyles.root = { fontSize: '12px' };
+            if (props.itemIndex % 2 === 0) {
+                // Every other row renders with a different background color
+                customStyles.root = merge(customStyles.root, { backgroundColor: theme.palette.themeLighterAlt });
+            }
 
-          customStyles.cell = { fontSize: '12px' }
-    
-          return <DetailsRow {...props} styles={customStyles} />;
+            return <DetailsRow {...props} styles={customStyles} />;
         }
         return null;
-      };
+    };
 
-    private _onRenderDetailsFooter(detailsFooterProps: IDetailsFooterProps): JSX.Element {
-        return (
-          <DetailsRow
-            {...detailsFooterProps}
-            columns={detailsFooterProps.columns}
-            item={{}}
-            itemIndex={-1}
-            groupNestingDepth={detailsFooterProps.groupNestingDepth}
-            selectionMode={SelectionMode.none}
-            onRenderItemColumn={_renderDetailsFooterItemColumn}
-            onRenderCheck={_onRenderCheckForFooterRow}
-          />
-        );
-      }
-}
+    private _renderItemColumn = (item: ITranslationMemoryItem, index: number, column: IColumn) => {
+        const fieldContent = item[column.fieldName as keyof ITranslationMemoryItem] as string;
+        const commentIcon: IIconProps = { iconName: 'Comment' };
+        const tooltipId = `note${index}`
+        const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block', alignContent: 'center' } };
 
-const _renderDetailsFooterItemColumn: IDetailsRowBaseProps['onRenderItemColumn'] = (_, __, column) => {
-    if (column) {
-        return (
-        <div className="ms-fontWeight-bold">
-            {column.fieldName}
-        </div>
-        );
+        if(column.fieldName === 'note' && !!fieldContent) {
+            return (
+                <TooltipHost content={fieldContent} id={tooltipId} styles={hostStyles}>
+                    <IconButton iconProps={commentIcon} aria-describedby={tooltipId} data-selection-disabled={true} />
+                </TooltipHost>
+            );
+        } else {
+            return (<span>{fieldContent}</span>);
+        }
     }
-    return undefined;
-};
-
-const detailsRowCheckStyles: Partial<IDetailsRowCheckStyles> = { root: { visibility: 'hidden' } };
-
-const _onRenderCheckForFooterRow: IDetailsRowBaseProps['onRenderCheck'] = (props): JSX.Element => {
-    return <DetailsRowCheck {...props} styles={detailsRowCheckStyles} selected={true} />;
-};
+}
 
 function _copyAndSort<ITranslationMemoryItem>(items: ITranslationMemoryItem[], columnKey: string, isSortedDescending?: boolean): ITranslationMemoryItem[] {
     const key = columnKey as keyof ITranslationMemoryItem;
-    return items.slice(0).sort((a: ITranslationMemoryItem, b: ITranslationMemoryItem) => ((isSortedDescending ? a[key] < b[key]: a[key] > b[key]) ? 1 : -1));
+    return items.slice(0)
+                .sort((aItem: ITranslationMemoryItem, bItem: ITranslationMemoryItem) => {
+                    const aLower = _getPropertyLower(aItem, key);
+                    const bLower = _getPropertyLower(bItem, key);
+                    const compareVal = isSortedDescending ? aLower < bLower : aLower > bLower;
+                    return compareVal ? 1 : -1;
+                });
+}
+
+function _getPropertyLower(item: any, key: any): string {
+    let value = item[key];
+    let valueLower = '';
+    if(typeof value === 'string'){
+        valueLower = value.toLocaleLowerCase();
+    }
+    return valueLower;
 }
