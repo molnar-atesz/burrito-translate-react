@@ -12,7 +12,7 @@ import {
     ColumnActionsMode,
   } from 'office-ui-fabric-react/lib/DetailsList';
 import React = require("react");
-import { IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
+import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { IconButton, IIconProps, ITooltipHostStyles, merge, TooltipHost } from 'office-ui-fabric-react';
 
@@ -52,11 +52,11 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 fieldName: 'en',
                 minWidth: 50,
                 maxWidth: 90,
-                isMultiline: true,
                 isRowHeader: true,
+                isMultiline: true,
                 isResizable: true,
-                sortAscendingAriaLabel: 'Sorted A to Z',
-                sortDescendingAriaLabel: 'Sorted Z to A',
+                sortAscendingAriaLabel: 'Rendezés A..Z',
+                sortDescendingAriaLabel: 'Rendezés Z..A',
                 onColumnClick: this._onColumnClick,
                 data: 'string',
                 isPadded: true
@@ -69,8 +69,8 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 maxWidth: 90,
                 isMultiline: true,
                 isResizable: true,
-                sortAscendingAriaLabel: 'Rendezés növekvő',
-                sortDescendingAriaLabel: 'Rendezés csökkenő',
+                sortAscendingAriaLabel: 'Rendezés A..Z',
+                sortDescendingAriaLabel: 'Rendezés Z..A',
                 onColumnClick: this._onColumnClick,
                 data: 'string',
                 isPadded: true
@@ -85,6 +85,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                 isRowHeader: false,
                 isResizable: false,
                 data: 'string',
+                isCollapsible: true,
             }
         ];
 
@@ -118,13 +119,21 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
 
     public render() {
         const { items, columns } = this.state;
+        const stackProps: IStackProps = {
+            root: {
+                style: {
+                    padding: '10px'
+                }
+            }
+        };
 
         return (
-            <main className="ms-welcome__main">
-                <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Fordítási memória</h2>
-                <Stack tokens={stackTokens}>
+                <Stack tokens={stackTokens} {...stackProps}>
+                    <Stack.Item align="center">
+                        <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Fordítási memória</h2>
+                    </Stack.Item>
                     <Stack.Item align="stretch">
-                        <SearchBox placeholder="Keresés (angol)" onChange={this._onChangeText } />
+                        <SearchBox placeholder="Keresés (angol)" onChange={this._onChangeText} />
                     </Stack.Item>
                     <Stack.Item align="stretch">
                         <DetailsList
@@ -144,7 +153,6 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                         />
                     </Stack.Item>
                 </Stack>
-            </main>
         );
     }
 
