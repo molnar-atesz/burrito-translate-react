@@ -118,7 +118,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
             </Stack.Item>
           }
           <Stack.Item align="stretch">
-              <TranslationMemory items={this.state.memory}></TranslationMemory>
+              <TranslationMemory items={this.state.memory} notify={this.setNotification}></TranslationMemory>
           </Stack.Item>
         </Stack>
 

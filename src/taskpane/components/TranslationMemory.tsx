@@ -14,7 +14,7 @@ import {
 import React = require("react");
 import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
-import { IconButton, IIconProps, ITooltipHostStyles, TooltipHost } from 'office-ui-fabric-react';
+import { IconButton, IIconProps, ITooltipHostStyles, MessageBarType, TooltipHost } from 'office-ui-fabric-react';
 
 export interface ITranslationMemoryItem {
     key: string,
@@ -25,6 +25,7 @@ export interface ITranslationMemoryItem {
 
 export interface ITranslationMemoryProps {
     items: ITranslationMemoryItem[];
+    notify: (message: string, messageType?: MessageBarType) => any
 }
 
 export interface ITranslationMemoryState {
@@ -157,8 +158,11 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
 
     private async _insertWord(item: ITranslationMemoryItem) {
         await Word.run(async (context) => {
-            let body = context.document.body;
-            body.insertParagraph(item.hu, Word.InsertLocation.end);
+            Office.context.document.setSelectedDataAsync(item.hu, asyncResult => {
+                if (asyncResult.status === Office.AsyncResultStatus.Failed) {
+                    this.props.notify("Nem sikerült beszúrni", MessageBarType.error);
+                }
+            });
             await context.sync();
         });
     }
