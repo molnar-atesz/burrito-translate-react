@@ -14,16 +14,14 @@ Office.onReady(() => {
  * @param event
  */
 function action(event: Office.AddinCommands.Event) {
-  const message: Office.NotificationMessageDetails = {
-    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-    message: "Performed action.",
-    icon: "Icon.80x80",
-    persistent: true
-  };
-
-  // Show a notification message
-  Office.context.mailbox.item.notificationMessages.replaceAsync("action", message);
-
+  Office.context.document.getSelectedDataAsync(Office.CoercionType.Text, result => {
+    if (result.status === Office.AsyncResultStatus.Succeeded) {
+      Office.context.ui.displayDialogAsync("https://localhost:3000/commands.html");
+    } else {
+      var err = result.error;
+      console.log(err.name + ": " + err.message);
+    }
+  });
   // Be sure to indicate when the add-in command function is complete
   event.completed();
 }

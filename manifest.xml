@@ -57,6 +57,25 @@
               </Group>
             </OfficeTab>
           </ExtensionPoint>
+          <ExtensionPoint xsi:type="ContextMenu">
+            <OfficeMenu id="ContextMenuText">
+              <Control xsi:type="Button" id="ActionButtonId">
+                <Label resid="Context.Label" />
+                <Supertip>
+                  <Title resid="Context.Supertip.Label" />
+                  <Description resid="Context.Supertip.Description" />
+                </Supertip>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.32x32" />
+                  <bt:Image size="32" resid="Icon.32x32" />
+                  <bt:Image size="80" resid="Icon.32x32" />
+                </Icon>
+                <Action xsi:type="ExecuteFunction">
+                  <FunctionName>action</FunctionName>
+                </Action>
+              </Control>
+            </OfficeMenu>
+          </ExtensionPoint>
         </DesktopFormFactor>
       </Host>
     </Hosts>
@@ -75,10 +94,14 @@
         <bt:String id="GetStarted.Title" DefaultValue="Burrito Translate for a better translation experience."/>
         <bt:String id="CommandsGroup.Label" DefaultValue="Burrito Translate"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Wrap me a burrito"/>
+        <bt:String id="Context.Label" DefaultValue="Burrito Context"/>
+        <bt:String id="Context.Supertip.Label" DefaultValue="Supertip label"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Go to the HOME tab and click the 'Wrap me a burrito' button to get started."/>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Wrap me a burrito"/>
+        <bt:String id="Context.Tooltip" DefaultValue="My context is burrito chica!"/>
+        <bt:String id="Context.Supertip.Description" DefaultValue="Ez valami nagyon szuper tip lehet."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
