@@ -92,7 +92,9 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         this._selection = new Selection({
             onSelectionChanged: async () => {
                 await this._insertWord(this._getSelectionDetails());
-            }
+                this._selection.toggleAllSelected();
+            },
+            selectionMode: SelectionMode.single
         });
 
         this.state = {
@@ -130,7 +132,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         return (
                 <Stack tokens={stackTokens} {...stackProps}>
                     <Stack.Item align="center">
-                        <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Fordítási memória</h2>
+                        <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Szószedet</h2>
                     </Stack.Item>
                     <Stack.Item align="stretch">
                         <SearchBox placeholder="Keresés (angol)" onChange={this._onChangeText} />
@@ -143,10 +145,9 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
                             compact={true}
                             setKey="none"
                             selection={this._selection}
-                            selectionMode={SelectionMode.single}
                             layoutMode={DetailsListLayoutMode.justified}
                             checkboxVisibility={CheckboxVisibility.hidden}
-                            selectionPreservedOnEmptyClick={true}
+                            selectionPreservedOnEmptyClick={false}
                             isHeaderVisible={true}
                             onRenderRow={this._onRenderRow}
                             onRenderItemColumn={this._renderItemColumn}
