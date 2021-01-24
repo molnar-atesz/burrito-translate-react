@@ -1,7 +1,7 @@
 import { PrimaryButton, TextField } from "office-ui-fabric-react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import React = require("react");
-import { ITranslationMemoryItem } from "./TranslationMemory";
+import { IGlossaryItem } from "./Glossary";
 
 const stackTokens = { childrenGap: 5 };
 
@@ -9,7 +9,7 @@ export interface INewItemProps {
     addWord: any
 }
 
-export default class NewItem extends React.Component<INewItemProps, ITranslationMemoryItem | any> {
+export default class NewItem extends React.Component<INewItemProps, IGlossaryItem | any> {
     constructor(props) {
         super(props);
         this.state = { 

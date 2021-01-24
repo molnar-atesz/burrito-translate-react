@@ -16,20 +16,20 @@ import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Sta
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { IconButton, IIconProps, ITooltipHostStyles, MessageBarType, TooltipHost } from 'office-ui-fabric-react';
 
-export interface ITranslationMemoryItem {
+export interface IGlossaryItem {
     key: string,
     hu: string;
     en: string;
     note?: string;
 }
 
-export interface ITranslationMemoryProps {
-    items: ITranslationMemoryItem[];
+export interface IGlossaryProps {
+    items: IGlossaryItem[];
     notify: (message: string, messageType?: MessageBarType) => any
 }
 
-export interface ITranslationMemoryState {
-    items: ITranslationMemoryItem[];
+export interface IGlossaryState {
+    items: IGlossaryItem[];
     columns: IColumn[];
 }
 
@@ -39,9 +39,9 @@ const stackTokens: IStackTokens = {
 
 const theme = getTheme()
 
-export default class TranslationMemory extends React.Component<ITranslationMemoryProps, ITranslationMemoryState>{
+export default class Glossary extends React.Component<IGlossaryProps, IGlossaryState>{
     private _selection: Selection;
-    private _allItems: ITranslationMemoryItem[];
+    private _allItems: IGlossaryItem[];
 
     constructor(props) {
         super(props);
@@ -103,7 +103,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         };
     }
 
-    componentDidUpdate(prevProps: ITranslationMemoryProps) {
+    componentDidUpdate(prevProps: IGlossaryProps) {
         if(prevProps.items !== this.props.items) {
             this._allItems = this.props.items;
             this.setState({
@@ -157,7 +157,7 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         );
     }
 
-    private async _insertWord(item: ITranslationMemoryItem) {
+    private async _insertWord(item: IGlossaryItem) {
         await Word.run(async (context) => {
             Office.context.document.setSelectedDataAsync(item.hu, asyncResult => {
                 if (asyncResult.status === Office.AsyncResultStatus.Failed) {
@@ -172,16 +172,16 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         return item.key;
     }
 
-    private _getSelectionDetails(): ITranslationMemoryItem {
+    private _getSelectionDetails(): IGlossaryItem {
         const selectionCount = this._selection.getSelectedCount();
 
         switch (selectionCount) {
             case 0:
                 return null;
             case 1:
-                return this._selection.getSelection()[0] as ITranslationMemoryItem;
+                return this._selection.getSelection()[0] as IGlossaryItem;
             default:
-                return this._selection.getSelection()[0] as ITranslationMemoryItem;
+                return this._selection.getSelection()[0] as IGlossaryItem;
         }
     }
 
@@ -225,8 +225,8 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
         return null;
     };
 
-    private _renderItemColumn = (item: ITranslationMemoryItem, index: number, column: IColumn) => {
-        const fieldContent = item[column.fieldName as keyof ITranslationMemoryItem] as string;
+    private _renderItemColumn = (item: IGlossaryItem, index: number, column: IColumn) => {
+        const fieldContent = item[column.fieldName as keyof IGlossaryItem] as string;
         const commentIcon: IIconProps = { iconName: 'Comment' };
         const tooltipId = `note${index}`
         const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
@@ -243,10 +243,10 @@ export default class TranslationMemory extends React.Component<ITranslationMemor
     }
 }
 
-function _copyAndSort<ITranslationMemoryItem>(items: ITranslationMemoryItem[], columnKey: string, isSortedDescending?: boolean): ITranslationMemoryItem[] {
-    const key = columnKey as keyof ITranslationMemoryItem;
+function _copyAndSort<IGlossaryItem>(items: IGlossaryItem[], columnKey: string, isSortedDescending?: boolean): IGlossaryItem[] {
+    const key = columnKey as keyof IGlossaryItem;
     return items.slice(0)
-                .sort((aItem: ITranslationMemoryItem, bItem: ITranslationMemoryItem) => {
+                .sort((aItem: IGlossaryItem, bItem: IGlossaryItem) => {
                     const aLower = _getPropertyLower(aItem, key);
                     const bLower = _getPropertyLower(bItem, key);
                     const compareVal = isSortedDescending ? aLower < bLower : aLower > bLower;

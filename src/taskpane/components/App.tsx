@@ -8,7 +8,7 @@ import "../../../assets/icon-80.png";
 import StorageService from "../services/StorageService";
 import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
-import TranslationMemory, { ITranslationMemoryItem } from "./TranslationMemory";
+import Glossary, { IGlossaryItem } from "./Glossary";
 
 export interface INotificationProps {
   message: string;
@@ -20,7 +20,7 @@ export interface IAppProps {
 }
 
 export interface IAppState {
-  memory: ITranslationMemoryItem[];
+  glossary: IGlossaryItem[];
   notification: INotificationProps,
   edit: boolean
 }
@@ -41,7 +41,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      memory: [],
+      glossary: [],
       notification: {
         message: '',
         messageBarType: MessageBarType.info
@@ -51,7 +51,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
-    this.saveMemory = this.saveMemory.bind(this);
+    this.saveGlossary = this.saveGlossary.bind(this);
     this.load = this.load.bind(this);
     this.edit = this.edit.bind(this);
   }
@@ -63,10 +63,10 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  addWord(word: ITranslationMemoryItem) {
+  addWord(word: IGlossaryItem) {
     this.setState({
       edit: false,
-      memory: [...this.state.memory, word]
+      glossary: [...this.state.glossary, word]
     });
   }
 
@@ -79,20 +79,20 @@ export default class App extends React.Component<IAppProps, IAppState> {
     });
   }
 
-  saveMemory(): boolean {
-    StorageService.saveTranslationMemory(this.state.memory).then((_) => {
+  saveGlossary(): boolean {
+    StorageService.saveGlossary(this.state.glossary).then((_) => {
       this.setNotification('Mentés sikeres.', MessageBarType.success);
     }).catch(err => {
       console.log(err);
-      this.setNotification('Hiba történt', MessageBarType.error);
+      this.setNotification('Hiba történt!', MessageBarType.error);
     });
     return true;
   }
 
   load(): boolean {
-    StorageService.loadTranslationMemory().then((mem) =>{
+    StorageService.loadGlossary().then((mem) =>{
       this.setState({
-        memory: mem,
+        glossary: mem,
         notification: {
           message: 'Betöltés sikeres',
           messageBarType: MessageBarType.success
@@ -111,14 +111,16 @@ export default class App extends React.Component<IAppProps, IAppState> {
       <div>
         <Stack tokens={{childrenGap: 10}}>
           <Stack.Item align="stretch">
-              <ControlPanel onNew={this.edit} onLoad={this.load} onSave={this.saveMemory} />
+              <ControlPanel onNew={this.edit} onLoad={this.load} onSave={this.saveGlossary} />
           </Stack.Item>
+
           {(!!this.state.edit) && <Stack.Item align="center">
               <NewItem addWord={this.addWord}></NewItem>
             </Stack.Item>
           }
+          
           <Stack.Item align="stretch">
-              <TranslationMemory items={this.state.memory} notify={this.setNotification}></TranslationMemory>
+            {(this.state.glossary.length > 0) && <Glossary items={this.state.glossary} notify={this.setNotification}></Glossary>}
           </Stack.Item>
         </Stack>
 

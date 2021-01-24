@@ -1,4 +1,3 @@
-
 import { IContextualMenuItem } from "office-ui-fabric-react";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import React = require("react");
@@ -23,16 +22,16 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
                 onClick: this.props.onNew
             },
             {
-                key: "saveMemory",
+                key: "saveGlossary",
                 text: "Mentés",
-                cacheKey: 'saveMemoryCache',
+                cacheKey: 'saveGlossaryCache',
                 iconProps: { iconName: 'Save' },
                 onClick: this.props.onSave
             },
             {
-                key: "loadMemory",
+                key: "loadGlossary",
                 text: "Betöltés",
-                cacheKey: 'loadMemoryCache',
+                cacheKey: 'loadGlossaryCache',
                 iconProps: { iconName: 'Upload' },
                 onClick: this.props.onLoad
             }

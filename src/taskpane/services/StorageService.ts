@@ -1,10 +1,10 @@
-import { ITranslationMemoryItem } from "../components/TranslationMemory";
+import { IGlossaryItem } from "../components/Glossary";
 
 const XMLNS = "http://burrito.org/translate";
 const ID_SETTINGS_KEY = "BurritoMemory";
 
 export default class StorageService {
-  public static saveTranslationMemory(data: ITranslationMemoryItem[]): Promise<string> {
+  public static saveGlossary(data: IGlossaryItem[]): Promise<string> {
     const doc = Office.context.document;
     const xmlString = this.convertToXml(data);
 
@@ -20,9 +20,9 @@ export default class StorageService {
     });
   }
 
-  public static loadTranslationMemory(): Promise<ITranslationMemoryItem[]> {
-    const memory = [];
-    return new Promise<ITranslationMemoryItem[]>((resolve, _) => {
+  public static loadGlossary(): Promise<IGlossaryItem[]> {
+    const glossary = [];
+    return new Promise<IGlossaryItem[]>((resolve, _) => {
       const id = Office.context.document.settings.get(ID_SETTINGS_KEY);
       if (!id) {
         resolve([]);
@@ -38,14 +38,14 @@ export default class StorageService {
           for (let i = 0; i < items.length; i++) {
             const item = items[i];
             
-            memory.push({
+            glossary.push({
               key: i.toString(),
               hu: item.getAttribute("hu"),
               en: item.getAttribute("en"),
               note: item.getAttribute("note")
             });
           }
-          resolve(memory);
+          resolve(glossary);
         });
       });
     });
@@ -71,10 +71,10 @@ export default class StorageService {
     });
   }
 
-  private static convertToXml(data: ITranslationMemoryItem[]): string {
+  private static convertToXml(data: IGlossaryItem[]): string {
     const len = data.length;
     let xmlString = `<burritoMemory count='${len}' xmlns='${XMLNS}'>`;
-    data.forEach((item: ITranslationMemoryItem) => {
+    data.forEach((item: IGlossaryItem) => {
       const noteAttr = !!item.note ? `note='${item.note}' ` : "";
       xmlString += `<item hu='${item.hu}' en='${item.en}' ${noteAttr}/>`;
     });
