@@ -10,3 +10,7 @@ export const LANGUAGES = [
   new Language("Pусский", "ru", 7),
   new Language("italiana", "it", 8)
 ];
+
+export const VERTICAL_STACK_TOKENS = {
+  childrenGap: 5
+};

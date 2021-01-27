@@ -1,9 +1,8 @@
 import { PrimaryButton, TextField } from "office-ui-fabric-react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import React = require("react");
+import { VERTICAL_STACK_TOKENS } from "../utils/constants";
 import { IGlossaryItem } from "./GlossaryTable";
-
-const stackTokens = { childrenGap: 5 };
 
 export interface INewItemProps {
     addWord: any
@@ -40,7 +39,7 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
 
     public render() {
         return (
-            <Stack verticalAlign="center" tokens={stackTokens}>
+            <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
                 <TextField label="Angol" name="en" value={this.state.en} onChange={this.handleInputChange} />
                 <TextField label="Magyar" name="hu" value={this.state.hu} onChange={this.handleInputChange} />
                 <TextField label="Megjegyzés" name="note" multiline rows={3} value={this.state.note} onChange={this.handleInputChange} />

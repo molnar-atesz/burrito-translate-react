@@ -10,6 +10,8 @@ import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
 import GlossaryTable, { IGlossaryItem } from "./GlossaryTable";
 import { IGlossary } from "../types/glossary";
+import NewGlossary from "./NewGlossary";
+import { Glossary, Language } from "../models/Glossary";
 
 export interface INotificationProps {
   message: string;
@@ -57,6 +59,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.saveGlossary = this.saveGlossary.bind(this);
     this.load = this.load.bind(this);
     this.edit = this.edit.bind(this);
+    this.createGlossary = this.createGlossary.bind(this);
   }
 
   edit(): boolean {
@@ -70,6 +73,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.setState({
       edit: false,
       glossaryItems: [...this.state.glossaryItems, word]
+    });
+  }
+
+  createGlossary(source: Language, target: Language) {
+    let glossary = new Glossary(source, target);
+    this.setState({
+      glossary: glossary
     });
   }
 
@@ -121,9 +131,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
               <NewItem addWord={this.addWord}></NewItem>
             </Stack.Item>
           }
+
+          <Stack.Item align="center">
+            {(!this.state.glossary) && <NewGlossary createGlossary={this.createGlossary}></NewGlossary>}
+          </Stack.Item>
           
           <Stack.Item align="stretch">
-            {(this.state.glossaryItems.length > 0) && <GlossaryTable items={this.state.glossaryItems} notify={this.setNotification}></GlossaryTable>}
+            {(this.state.glossary) && <GlossaryTable items={this.state.glossaryItems} notify={this.setNotification}></GlossaryTable>}
           </Stack.Item>
         </Stack>
 
