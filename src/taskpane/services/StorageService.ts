@@ -1,4 +1,4 @@
-import { IGlossaryItem } from "../components/Glossary";
+import { IGlossaryItem } from "../components/GlossaryTable";
 
 const XMLNS = "http://burrito.org/translate";
 const ID_SETTINGS_KEY = "BurritoMemory";

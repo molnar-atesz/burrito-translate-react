@@ -1,7 +1,7 @@
 import { PrimaryButton, TextField } from "office-ui-fabric-react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import React = require("react");
-import { IGlossaryItem } from "./Glossary";
+import { IGlossaryItem } from "./GlossaryTable";
 
 const stackTokens = { childrenGap: 5 };
 

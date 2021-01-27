@@ -8,7 +8,8 @@ import "../../../assets/icon-80.png";
 import StorageService from "../services/StorageService";
 import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
-import Glossary, { IGlossaryItem } from "./Glossary";
+import GlossaryTable, { IGlossaryItem } from "./GlossaryTable";
+import { IGlossary } from "../types/glossary";
 
 export interface INotificationProps {
   message: string;
@@ -20,7 +21,8 @@ export interface IAppProps {
 }
 
 export interface IAppState {
-  glossary: IGlossaryItem[];
+  glossary?: IGlossary;
+  glossaryItems: IGlossaryItem[];
   notification: INotificationProps,
   edit: boolean
 }
@@ -41,7 +43,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      glossary: [],
+      glossary: null,
+      glossaryItems: [],
       notification: {
         message: '',
         messageBarType: MessageBarType.info
@@ -66,7 +69,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   addWord(word: IGlossaryItem) {
     this.setState({
       edit: false,
-      glossary: [...this.state.glossary, word]
+      glossaryItems: [...this.state.glossaryItems, word]
     });
   }
 
@@ -80,7 +83,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   saveGlossary(): boolean {
-    StorageService.saveGlossary(this.state.glossary).then((_) => {
+    StorageService.saveGlossary(this.state.glossaryItems).then((_) => {
       this.setNotification('Mentés sikeres.', MessageBarType.success);
     }).catch(err => {
       console.log(err);
@@ -92,7 +95,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   load(): boolean {
     StorageService.loadGlossary().then((mem) =>{
       this.setState({
-        glossary: mem,
+        glossaryItems: mem,
         notification: {
           message: 'Betöltés sikeres',
           messageBarType: MessageBarType.success
@@ -120,7 +123,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
           }
           
           <Stack.Item align="stretch">
-            {(this.state.glossary.length > 0) && <Glossary items={this.state.glossary} notify={this.setNotification}></Glossary>}
+            {(this.state.glossaryItems.length > 0) && <GlossaryTable items={this.state.glossaryItems} notify={this.setNotification}></GlossaryTable>}
           </Stack.Item>
         </Stack>
 

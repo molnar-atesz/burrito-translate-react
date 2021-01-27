@@ -23,12 +23,12 @@ export interface IGlossaryItem {
     note?: string;
 }
 
-export interface IGlossaryProps {
+export interface IGlossaryTableProps {
     items: IGlossaryItem[];
     notify: (message: string, messageType?: MessageBarType) => any
 }
 
-export interface IGlossaryState {
+export interface IGlossaryTableState {
     items: IGlossaryItem[];
     columns: IColumn[];
 }
@@ -39,7 +39,7 @@ const stackTokens: IStackTokens = {
 
 const theme = getTheme()
 
-export default class Glossary extends React.Component<IGlossaryProps, IGlossaryState>{
+export default class GlossaryTable extends React.Component<IGlossaryTableProps, IGlossaryTableState>{
     private _selection: Selection;
     private _allItems: IGlossaryItem[];
 
@@ -91,7 +91,8 @@ export default class Glossary extends React.Component<IGlossaryProps, IGlossaryS
 
         this._selection = new Selection({
             onSelectionChanged: async () => {
-                await this._insertWord(this._getSelectionDetails());
+                const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
+                await this._insertWord(selectionDetails);
                 this._selection.toggleAllSelected();
             },
             selectionMode: SelectionMode.single
@@ -103,7 +104,7 @@ export default class Glossary extends React.Component<IGlossaryProps, IGlossaryS
         };
     }
 
-    componentDidUpdate(prevProps: IGlossaryProps) {
+    componentDidUpdate(prevProps: IGlossaryTableProps) {
         if(prevProps.items !== this.props.items) {
             this._allItems = this.props.items;
             this.setState({
@@ -171,20 +172,7 @@ export default class Glossary extends React.Component<IGlossaryProps, IGlossaryS
     private _getKey(item: any, _?: number): string {
         return item.key;
     }
-
-    private _getSelectionDetails(): IGlossaryItem {
-        const selectionCount = this._selection.getSelectedCount();
-
-        switch (selectionCount) {
-            case 0:
-                return null;
-            case 1:
-                return this._selection.getSelection()[0] as IGlossaryItem;
-            default:
-                return this._selection.getSelection()[0] as IGlossaryItem;
-        }
-    }
-
+    
     private _onChangeText = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
             items: text ? this._allItems.filter(i => i.en.toLowerCase().indexOf(text.toLowerCase()) > -1) : this._allItems,
