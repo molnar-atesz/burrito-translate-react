@@ -1,4 +1,4 @@
-import { IGlossary, IGlossaryItem, IGlossaryStore } from "../types/glossary";
+import { IGlossary, IGlossaryItem } from "../types/glossary";
 
 export class Language {
   name: string;
@@ -24,6 +24,7 @@ export class Glossary implements IGlossary {
     this.source = source;
     this.target = target;
     this.created = new Date();
+    this.items = [];
   }
 
   deleteItem(word: string) {
