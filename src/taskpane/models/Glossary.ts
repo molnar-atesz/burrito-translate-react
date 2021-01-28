@@ -36,6 +36,11 @@ export class Glossary implements IGlossary {
     if (!newItem) {
       throw new Error("Item should not be empty!");
     }
+
+    if (!!this.items.find(it => it.original === newItem.original)) {
+      throw new Error(`Already contains word '${newItem.original}'.`);
+    }
+
     this.items.push(newItem);
   }
 
