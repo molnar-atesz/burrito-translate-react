@@ -1,4 +1,4 @@
-import { IGlossary, IGlossaryItem } from "../types/glossary";
+import { IGlossary, IGlossaryItem, IGlossaryStore } from "../types/glossary";
 
 export class Language {
   name: string;
@@ -26,24 +26,23 @@ export class Glossary implements IGlossary {
     this.created = new Date();
   }
 
-  load() {
-    throw new Error("Method not implemented.");
-  }
-
-  save() {
-    throw new Error("Method not implemented.");
-  }
-
   deleteItem(word: string) {
-    throw new Error("Method not implemented." + word);
+    let delIndex = this.items.findIndex(item => item.original === word);
+    this.items.splice(delIndex, 1);
   }
 
   addItem(newItem: IGlossaryItem) {
-    throw new Error("Method not implemented." + newItem.original);
+    if (!newItem) {
+      throw new Error("Item should not be empty!");
+    }
+    this.items.push(newItem);
   }
 
   editItem(word: string, newTranslation: string, newNote?: string) {
-    let temp = word + newTranslation + newNote;
-    throw new Error("Method not implemented.") + temp;
+    let prevWord = this.items.find(it => it.original === word);
+    if (!!prevWord) {
+      prevWord.translation = newTranslation;
+      prevWord.note = newNote;
+    }
   }
 }

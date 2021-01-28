@@ -14,11 +14,9 @@ export interface IGlossary {
   created: Date;
   items: IGlossaryItem[];
 
-  load(): any;
-  save(): any;
-  deleteItem(word: string): any;
-  addItem(newItem: IGlossaryItem): any;
-  editItem(word: string, newTranslation: string, newNote?: string): any;
+  addItem(newItem: IGlossaryItem): void;
+  deleteItem(word: string): void;
+  editItem(word: string, newTranslation: string, newNote?: string): void;
 }
 
 export interface IGlossaryStore {
