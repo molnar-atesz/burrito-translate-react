@@ -14,3 +14,5 @@ export const LANGUAGES = [
 export const VERTICAL_STACK_TOKENS = {
   childrenGap: 5
 };
+
+export const XMLNS = "http://burrito.org/translate";
