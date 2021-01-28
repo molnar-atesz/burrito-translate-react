@@ -20,3 +20,19 @@ export interface IGlossary {
   addItem(newItem: IGlossaryItem): any;
   editItem(word: string, newTranslation: string, newNote?: string): any;
 }
+
+export interface IGlossaryStore {
+  saveAsync(glossary: IGlossary): Promise<string>;
+  loadAsync(id: string): Promise<IGlossary>;
+  clearAsync(id: string): Promise<void>;
+}
+
+export interface IGlossaryXmlSerializer {
+  serialize(glossary: IGlossary): string;
+  deserialize(xml: string): IGlossary;
+}
+
+export interface IDocumentCustomXmlProxy {
+  getXmlPartByIdAsync(id: string): Promise<Office.AsyncResult<Office.CustomXmlPart>>;
+  getXmlValueAsync(xmlPart: Office.CustomXmlPart): Promise<string>;
+}
