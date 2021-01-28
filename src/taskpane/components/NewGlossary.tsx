@@ -12,7 +12,7 @@ export interface INewGlossaryState {
     target: Language;
 }
 
-const languageDropdownStyle: Partial<IDropdownStyles> = { dropdown: { width: 200 } };
+const languageDropdownStyle: Partial<IDropdownStyles> = { dropdown: { width: '80vw' } };
 
 const options: IDropdownOption[] = LANGUAGES.map<IDropdownOption>(lang => { 
                                                                     return { key: lang.abbreviation, text: lang.name, data: lang };
@@ -53,13 +53,13 @@ export default class NewGlossary extends React.Component<INewGlossaryProps, INew
                         placeholder="Select source language"
                         onChange={this.selectSource}
                         styles={languageDropdownStyle}
-                        options={options} />
+                        options={options.filter(opt => opt.data !== this.state.target)} />
                 <Dropdown label="Target language"
                         selectedKey={this.state.target ? this.state.target.abbreviation : undefined}
                         onChange={this.selectTarget}
                         placeholder="Select target language"
                         styles={languageDropdownStyle}
-                        options={options} />
+                        options={options.filter(opt => opt.data !== this.state.source)} />
                 <PrimaryButton text="Create" onClick={ () => this.create() } />
             </Stack>
         );
