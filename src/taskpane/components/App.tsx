@@ -42,8 +42,8 @@ const verticalStackProps: IStackProps = {
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.state = {
       glossary: null,
       glossaryItems: [],
