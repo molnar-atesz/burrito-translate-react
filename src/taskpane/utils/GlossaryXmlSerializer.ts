@@ -4,15 +4,18 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
   private readonly XMLNS: string;
 
   constructor(xmlns: string) {
+    if (!xmlns) {
+      throw new Error("Invalid argument: xmlns is required");
+    }
     this.XMLNS = xmlns;
   }
 
   serialize(glossary: IGlossary): string {
     let xmlString = `<burritoMemory xmlns='${this.XMLNS}'>`;
-    xmlString += `<source>${glossary.source}</source>`;
-    xmlString += `<target>${glossary.target}</target>`;
+    xmlString += `<source>${glossary.source.abbreviation}</source>`;
+    xmlString += `<target>${glossary.target.abbreviation}</target>`;
     xmlString += `<created>${glossary.created.toJSON()}</created>`;
-    xmlString += this.serializeItems(xmlString, glossary);
+    xmlString += this.serializeItems(glossary);
     xmlString += "</burritoMemory>";
     return xmlString;
   }
@@ -24,14 +27,14 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
     return null;
   }
 
-  private serializeItems(xmlString: string, glossary: IGlossary) {
-    xmlString += `<items>`;
+  private serializeItems(glossary: IGlossary) {
+    let itemsNode = `<items>`;
     glossary.items.forEach((item: IGlossaryItem) => {
       const noteAttr = !!item.note ? `note='${item.note}' ` : "";
-      xmlString += `<item original='${item.original}' translation='${item.translation}' ${noteAttr}/>`;
+      itemsNode += `<item original='${item.original}' translation='${item.translation}' ${noteAttr}/>`;
     });
-    xmlString += `</items>`;
-    return xmlString;
+    itemsNode += `</items>`;
+    return itemsNode;
   }
 
   private parseXML(xml: string): Document {
