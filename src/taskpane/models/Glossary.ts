@@ -45,10 +45,16 @@ export class Glossary implements IGlossary {
   }
 
   editItem(word: string, newTranslation: string, newNote?: string) {
-    let prevWord = this.items.find(it => it.original === word);
-    if (!!prevWord) {
-      prevWord.translation = newTranslation;
-      prevWord.note = newNote;
+    if (!newTranslation) {
+      throw new Error("Invalid argument: 'newTranslation' is required");
     }
+
+    let item = this.items.find(it => it.original === word);
+    if (!item) {
+      throw new Error(`Invalid argument: '${word}' is not an existing word`);
+    }
+
+    item.translation = newTranslation;
+    item.note = newNote;
   }
 }
