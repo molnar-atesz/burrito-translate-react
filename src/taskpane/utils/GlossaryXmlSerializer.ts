@@ -1,4 +1,6 @@
+import { Glossary } from "../models/Glossary";
 import { IGlossary, IGlossaryItem, IGlossaryXmlSerializer } from "../types/glossary";
+import { LANGUAGES } from "./constants";
 
 export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
   private readonly XMLNS: string;
@@ -10,21 +12,52 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
     this.XMLNS = xmlns;
   }
 
-  serialize(glossary: IGlossary): string {
-    let xmlString = `<burritoMemory xmlns='${this.XMLNS}'>`;
-    xmlString += `<source>${glossary.source.abbreviation}</source>`;
-    xmlString += `<target>${glossary.target.abbreviation}</target>`;
-    xmlString += `<created>${glossary.created.toJSON()}</created>`;
-    xmlString += this.serializeItems(glossary);
-    xmlString += "</burritoMemory>";
+  public serialize(glossary: IGlossary): string {
+    let xmlString = `<burritoMemory xmlns='${this.XMLNS}'>
+      <source>${glossary.source.abbreviation}</source>
+      <target>${glossary.target.abbreviation}</target>
+      <created>${glossary.created.toJSON()}</created>
+      ${this.serializeItems(glossary)}
+    </burritoMemory>`;
     return xmlString;
   }
 
-  deserialize(xml: string): IGlossary {
+  public deserialize(xml: string): IGlossary {
     const xmlDoc = this.parseXML(xml);
-    console.log(xmlDoc);
+    const { source, target, created } = this.deserializeBasicProps(xmlDoc);
 
-    return null;
+    let glossary = new Glossary(source, target, created);
+    this.deserializeItems(glossary, xmlDoc);
+
+    return glossary;
+  }
+
+  private deserializeBasicProps(xmlDoc: Document): { source: any; target: any; created: any } {
+    const sourceElem = xmlDoc.getElementsByTagName("source")[0];
+    const targetElem = xmlDoc.getElementsByTagName("target")[0];
+    const createdElem = xmlDoc.getElementsByTagName("created")[0];
+
+    const sourceLang = LANGUAGES.find(l => l.abbreviation == sourceElem.innerHTML);
+    const targetLang = LANGUAGES.find(l => l.abbreviation == targetElem.innerHTML);
+    const created = new Date(createdElem.innerHTML);
+
+    return { source: sourceLang, target: targetLang, created: created };
+  }
+
+  private deserializeItems(glossary: IGlossary, xmlDoc: Document): void {
+    const itemsElements = xmlDoc.getElementsByTagName("item");
+    for (let i = 0; i < itemsElements.length; i++) {
+      const itemNode = itemsElements[i];
+      const note = itemNode.hasAttribute("note") ? itemNode.getAttribute("note") : undefined;
+
+      const newItem: IGlossaryItem = {
+        key: (i + 1).toString(),
+        original: itemNode.getAttribute("original"),
+        translation: itemNode.getAttribute("translation"),
+        note: note
+      };
+      glossary.addItem(newItem);
+    }
   }
 
   private serializeItems(glossary: IGlossary) {

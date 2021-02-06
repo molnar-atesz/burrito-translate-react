@@ -19,11 +19,11 @@ export class Glossary implements IGlossary {
   created: Date;
   items: IGlossaryItem[];
 
-  constructor(source: Language, target: Language) {
+  constructor(source: Language, target: Language, created?: Date) {
     this.id = `${source.abbreviation}-${target.abbreviation}`;
     this.source = source;
     this.target = target;
-    this.created = new Date();
+    this.created = !!created ? created : new Date();
     this.items = [];
   }
 

@@ -1,6 +1,6 @@
 import { Glossary, Language } from "../models/Glossary";
 import { IGlossary, IGlossaryItem, IGlossaryXmlSerializer } from "../types/glossary";
-import { LANGUAGES, XMLNS } from "./constants";
+import { XMLNS } from "./constants";
 import GlossaryXmlSerializer from "./GlossaryXmlSerializer";
 
 const english = new Language("English", "en", 1);
@@ -86,5 +86,39 @@ describe("serialize", () => {
     expect(res).toContain(
       "<items><item original='the' translation='az' note='megj' /><item original='one' translation='egy' /></items>"
     );
+  });
+
+  describe("deserialize", () => {
+    let serializer: IGlossaryXmlSerializer;
+    const CUSTOM_XML: string =
+      "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-03T22:27:58.801Z</created><items><item original='the' translation='az' note='megj' /><item original='one' translation='egy' /></items></burritoMemory>";
+
+    beforeEach(() => {
+      serializer = new GlossaryXmlSerializer(XMLNS);
+    });
+
+    test("should set the source and target language properly", () => {
+      const res: IGlossary = serializer.deserialize(CUSTOM_XML);
+      const english = new Language("English", "en", 1);
+      expect(res.source).toEqual(english);
+      expect(res.target).toEqual(hungarian);
+      expect(res.id).toEqual("en-hu");
+    });
+
+    test("should set the created value based on XML created node", () => {
+      const res: IGlossary = serializer.deserialize(CUSTOM_XML);
+      const creationDate = new Date("2021-02-03T22:27:58.801Z");
+      expect(res.created.toJSON()).toEqual(creationDate.toJSON());
+    });
+
+    test("should add all items from xml to the glossary", () => {
+      const res = serializer.deserialize(CUSTOM_XML);
+      const item1: IGlossaryItem = { key: "1", original: "the", translation: "az", note: "megj" };
+      const item2: IGlossaryItem = { key: "2", original: "one", translation: "egy" };
+
+      expect(res.items.length).toEqual(2);
+      expect(res.items[0]).toEqual(item1);
+      expect(res.items[1]).toEqual(item2);
+    });
   });
 });
