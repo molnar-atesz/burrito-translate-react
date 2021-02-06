@@ -1,16 +1,24 @@
-import { IGlossaryItem } from "../components/GlossaryTable";
+import { IGlossary, IGlossaryXmlSerializer } from "../types/glossary";
+import { ID_SETTINGS_KEY } from "../utils/constants";
 
-const XMLNS = "http://burrito.org/translate";
-const ID_SETTINGS_KEY = "BurritoMemory";
-
+// TODO: wrap Office into a mockable class - Proxy?
 export default class StorageService {
-  public static saveGlossary(data: IGlossaryItem[]): Promise<string> {
+  private serializer: IGlossaryXmlSerializer;
+
+  constructor(xmlSerializer: IGlossaryXmlSerializer) {
+    this.serializer = xmlSerializer;
+  }
+
+  /**
+   * persistGlossary
+   */
+  public save(glossary: IGlossary): Promise<string> {
+    const glossaryXML = this.serializer.serialize(glossary);
     const doc = Office.context.document;
-    const xmlString = this.convertToXml(data);
 
     return new Promise<string>((resolve, _) => {
       this.clear().then(() => {
-        doc.customXmlParts.addAsync(xmlString, xmlPart => {
+        doc.customXmlParts.addAsync(glossaryXML, xmlPart => {
           doc.settings.set(ID_SETTINGS_KEY, xmlPart.value.id);
           doc.settings.saveAsync(() => {
             resolve("Success");
@@ -20,38 +28,29 @@ export default class StorageService {
     });
   }
 
-  public static loadGlossary(): Promise<IGlossaryItem[]> {
-    const glossary = [];
-    return new Promise<IGlossaryItem[]>((resolve, _) => {
+  /**
+   * load
+   */
+  public load(): Promise<IGlossary> {
+    return new Promise<IGlossary>((resolve, reject) => {
       const id = Office.context.document.settings.get(ID_SETTINGS_KEY);
       if (!id) {
-        resolve([]);
+        reject("No saved glossary found");
       }
 
       this.getByIdAsync(id).then(asyncResult => {
         if (!asyncResult.value) {
-          resolve([]);
+          reject("Previously saved glossary not found");
         }
         this.getXmlAsync(asyncResult.value).then(xml => {
-          const xmlDoc = this.parseXML(xml);
-          const items = xmlDoc.getElementsByTagName("item");
-          for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            
-            glossary.push({
-              key: i.toString(),
-              hu: item.getAttribute("hu"),
-              en: item.getAttribute("en"),
-              note: item.getAttribute("note")
-            });
-          }
+          const glossary = this.serializer.deserialize(xml);
           resolve(glossary);
         });
       });
     });
   }
 
-  private static clear(): Promise<void> {
+  private clear(): Promise<void> {
     return new Promise<void>((resolve, __) => {
       const id = Office.context.document.settings.get(ID_SETTINGS_KEY);
       if (!!id) {
@@ -71,32 +70,7 @@ export default class StorageService {
     });
   }
 
-  private static convertToXml(data: IGlossaryItem[]): string {
-    const len = data.length;
-    let xmlString = `<burritoMemory count='${len}' xmlns='${XMLNS}'>`;
-    data.forEach((item: IGlossaryItem) => {
-      const noteAttr = !!item.note ? `note='${item.note}' ` : "";
-      xmlString += `<item hu='${item.hu}' en='${item.en}' ${noteAttr}/>`;
-    });
-    xmlString += "</burritoMemory>";
-    return xmlString;
-  }
-
-  private static parseXML(xmlString): Document {
-    const parser = new DOMParser();
-    // Parse a simple Invalid XML source to get namespace of <parsererror>:
-    const docError = parser.parseFromString("INVALID", "text/xml");
-    const parseErrorNS = docError.getElementsByTagName("parsererror")[0].namespaceURI;
-    // Parse xmlString:
-    // (XMLDocument object)
-    const doc = parser.parseFromString(xmlString, "text/xml");
-    if (doc.getElementsByTagNameNS(parseErrorNS, "parsererror").length > 0) {
-      throw new Error("Error parsing XML");
-    }
-    return doc;
-  }
-
-  public static getByIdAsync(id: string): Promise<Office.AsyncResult<Office.CustomXmlPart>> {
+  private getByIdAsync(id: string): Promise<Office.AsyncResult<Office.CustomXmlPart>> {
     return new Promise<Office.AsyncResult<Office.CustomXmlPart>>((resolve, _) => {
       Office.context.document.customXmlParts.getByIdAsync(id, (result: Office.AsyncResult<Office.CustomXmlPart>) => {
         return resolve(result);
@@ -104,7 +78,7 @@ export default class StorageService {
     });
   }
 
-  public static getXmlAsync(xmlPart: Office.CustomXmlPart): Promise<string> {
+  private getXmlAsync(xmlPart: Office.CustomXmlPart): Promise<string> {
     return new Promise<string>((resolve, _) => {
       xmlPart.getXmlAsync((result: Office.AsyncResult<any>) => {
         return resolve(result.value);

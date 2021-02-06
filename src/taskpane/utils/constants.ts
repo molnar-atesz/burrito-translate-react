@@ -16,3 +16,4 @@ export const VERTICAL_STACK_TOKENS = {
 };
 
 export const XMLNS = "http://burrito.org/translate";
+export const ID_SETTINGS_KEY = "BurritoMemory";

@@ -9,9 +9,11 @@ import StorageService from "../services/StorageService";
 import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
 import GlossaryTable, { IGlossaryItem } from "./GlossaryTable";
-import { IGlossary } from "../types/glossary";
+import { IGlossary, IGlossaryXmlSerializer } from "../types/glossary";
 import NewGlossary from "./NewGlossary";
 import { Glossary, Language } from "../models/Glossary";
+import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
+import { XMLNS } from "../utils/constants";
 
 export interface INotificationProps {
   message: string;
@@ -42,8 +44,12 @@ const verticalStackProps: IStackProps = {
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
+  private storageService: StorageService;
+  private serializer: IGlossaryXmlSerializer;
+  
   constructor(props) {
     super(props);
+
     this.state = {
       glossary: null,
       glossaryItems: [],
@@ -54,6 +60,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
       edit: false
     };
 
+    this.serializer = new GlossaryXmlSerializer(XMLNS);
+    this.storageService = new StorageService(this.serializer);
+
+    this.bindMethodsToThis();
+  }
+
+  private bindMethodsToThis() {
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.saveGlossary = this.saveGlossary.bind(this);
@@ -93,7 +106,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   saveGlossary(): boolean {
-    StorageService.saveGlossary(this.state.glossaryItems).then((_) => {
+    this.storageService.save(this.state.glossary).then((_) => {
       this.setNotification('Mentés sikeres.', MessageBarType.success);
     }).catch(err => {
       console.log(err);
@@ -103,9 +116,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   load(): boolean {
-    StorageService.loadGlossary().then((mem) =>{
+    this.storageService.load().then((loadedGlossary) =>{
       this.setState({
-        glossaryItems: mem,
+        glossary: loadedGlossary,
         notification: {
           message: 'Betöltés sikeres',
           messageBarType: MessageBarType.success
