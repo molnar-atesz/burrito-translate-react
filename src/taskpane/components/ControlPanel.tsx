@@ -16,21 +16,21 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
         this._menuItems = [
             {
                 key: "newWord",
-                text: "Új szó",
+                text: "New word",
                 cacheKey: 'newWordCache',
                 iconProps: { iconName: 'Add' },
                 onClick: this.props.onNew
             },
             {
                 key: "saveGlossary",
-                text: "Mentés",
+                text: "Save",
                 cacheKey: 'saveGlossaryCache',
                 iconProps: { iconName: 'Save' },
                 onClick: this.props.onSave
             },
             {
                 key: "loadGlossary",
-                text: "Betöltés",
+                text: "Load",
                 cacheKey: 'loadGlossaryCache',
                 iconProps: { iconName: 'Upload' },
                 onClick: this.props.onLoad
