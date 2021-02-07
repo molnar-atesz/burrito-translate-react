@@ -18,6 +18,7 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
             note: ""
         };
         this._onInputChange = this._onInputChange.bind(this);
+        this._onSave = this._onSave.bind(this);
     }
 
     private _onInputChange(event) {
@@ -41,7 +42,7 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
     public render() {
         return (
             <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
-                <TextField label="From" name="original" value={this.state.original} onChange={this._onInputChange} />
+                <TextField label="Word" name="original" value={this.state.original} onChange={this._onInputChange} />
                 <TextField label="Translation" name="translation" value={this.state.translation} onChange={this._onInputChange} />
                 <TextField label="Note" name="note" multiline rows={3} value={this.state.note} onChange={this._onInputChange} />
                 <PrimaryButton text="Add" onClick={ () => this._onSave() } />
