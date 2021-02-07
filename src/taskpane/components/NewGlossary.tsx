@@ -1,5 +1,8 @@
-import { Dropdown, IDropdownOption, IDropdownStyles, PrimaryButton, Stack } from "office-ui-fabric-react";
+import { Stack } from "office-ui-fabric-react/lib/Stack";
+import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
+import { Dropdown, IDropdownOption, IDropdownStyles } from "office-ui-fabric-react/lib/Dropdown";
 import React = require("react");
+
 import { Language } from "../models/Glossary";
 import { LANGUAGES, VERTICAL_STACK_TOKENS } from "../utils/constants";
 
