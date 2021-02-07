@@ -84,6 +84,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
       edit: false,
       glossary: { ...this.state.glossary, items: this.glossary.items }
     });
+    this.glossaryStore.saveAsync(this.glossary).then(_ => {
+      this.setNotification("Glossary updated", MessageBarType.success);
+    });
   }
 
   onCreateGlossary(source: Language, target: Language) {
@@ -113,7 +116,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   onLoadGlossary(): boolean {
-    this.glossaryStore.loadAsync().then((loadedGlossary) =>{
+    this.glossaryStore.loadAsync().then((loadedGlossary) => {
+      this.glossary = loadedGlossary;
       this.setState({
         glossary: loadedGlossary,
         notification: {
