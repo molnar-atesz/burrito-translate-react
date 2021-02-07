@@ -17,6 +17,7 @@ import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { IconButton, IIconProps, ITooltipHostStyles, MessageBarType, TooltipHost } from 'office-ui-fabric-react';
 import { IGlossary, IGlossaryItem } from '../types/glossary';
 import { Language } from '../models/Glossary';
+import { copyAndSortItems } from '../utils/helpers';
 
 export interface IGlossaryTableProps {
     glossary: IGlossary;
@@ -169,10 +170,10 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         });
     };
 
-    private _onOrderByColumn = (_: React.MouseEvent<HTMLElement>, clickedCol: IColumn): void => {
+    private _onOrderByColumn = (_: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
         const newColumns: IColumn[] = columns.slice();
-        const clickedColumn: IColumn = newColumns.filter(col => clickedCol.key === col.key)[0];
+        const clickedColumn: IColumn = newColumns.filter(col => column.key === col.key)[0];
         newColumns.forEach((column: IColumn) => {
           if (column === clickedColumn) {
             clickedColumn.isSortedDescending = !clickedColumn.isSortedDescending;
@@ -182,7 +183,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
             column.isSortedDescending = true;
           }
         });
-        const newItems = _copyAndSort(items, clickedColumn.fieldName!, clickedColumn.isSortedDescending);
+        const newItems = copyAndSortItems(items, clickedColumn.fieldName!, clickedColumn.isSortedDescending);
         this.setState({
           columns: newColumns,
           items: newItems,
@@ -219,24 +220,4 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
             return (<span>{fieldContent}</span>);
         }
     }
-}
-
-function _copyAndSort<IGlossaryItem>(items: IGlossaryItem[], columnKey: string, isSortedDescending?: boolean): IGlossaryItem[] {
-    const key = columnKey as keyof IGlossaryItem;
-    return items.slice(0)
-                .sort((aItem: IGlossaryItem, bItem: IGlossaryItem) => {
-                    const aLower = _getPropertyLower(aItem, key);
-                    const bLower = _getPropertyLower(bItem, key);
-                    const compareVal = isSortedDescending ? aLower < bLower : aLower > bLower;
-                    return compareVal ? 1 : -1;
-                });
-}
-
-function _getPropertyLower(item: any, key: any): string {
-    let value = item[key];
-    let valueLower = '';
-    if(typeof value === 'string') {
-        valueLower = value.toLocaleLowerCase();
-    }
-    return valueLower;
 }
