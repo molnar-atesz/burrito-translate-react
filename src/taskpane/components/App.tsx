@@ -5,20 +5,17 @@ import * as React from "react";
 import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
+
+import { IGlossary, IGlossaryStore, IGlossaryXmlSerializer, INotification } from "../types/glossary";
 import StorageService from "../services/StorageService";
-import ControlPanel from "./ControlPanel";
-import NewItem from "./NewItem";
-import GlossaryTable, { IGlossaryItem } from "./GlossaryTable";
-import { IGlossary, IGlossaryXmlSerializer } from "../types/glossary";
-import NewGlossary from "./NewGlossary";
 import { Glossary, Language } from "../models/Glossary";
 import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
 import { XMLNS } from "../utils/constants";
 
-export interface INotificationProps {
-  message: string;
-  messageBarType: MessageBarType
-}
+import ControlPanel from "./ControlPanel";
+import NewItem from "./NewItem";
+import GlossaryTable, { IGlossaryItem } from "./GlossaryTable";
+import NewGlossary from "./NewGlossary";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -27,7 +24,7 @@ export interface IAppProps {
 export interface IAppState {
   glossary?: IGlossary;
   glossaryItems: IGlossaryItem[];
-  notification: INotificationProps,
+  notification: INotification,
   edit: boolean
 }
 
@@ -44,7 +41,7 @@ const verticalStackProps: IStackProps = {
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
-  private storageService: StorageService;
+  private glossaryStore: IGlossaryStore;
   private serializer: IGlossaryXmlSerializer;
   
   constructor(props) {
@@ -61,7 +58,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     };
 
     this.serializer = new GlossaryXmlSerializer(XMLNS);
-    this.storageService = new StorageService(this.serializer);
+    this.glossaryStore = new StorageService(this.serializer);
 
     this.bindMethodsToThis();
   }
@@ -106,7 +103,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   saveGlossary(): boolean {
-    this.storageService.save(this.state.glossary).then((_) => {
+    this.glossaryStore.saveAsync(this.state.glossary).then((_) => {
       this.setNotification('Mentés sikeres.', MessageBarType.success);
     }).catch(err => {
       console.log(err);
@@ -116,7 +113,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   load(): boolean {
-    this.storageService.load().then((loadedGlossary) =>{
+    this.glossaryStore.loadAsync().then((loadedGlossary) =>{
       this.setState({
         glossary: loadedGlossary,
         notification: {

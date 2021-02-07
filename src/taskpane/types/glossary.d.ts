@@ -1,4 +1,10 @@
+import { MessageBarType } from "office-ui-fabric-react";
 import { Language } from "../models/Glossary";
+
+export interface INotification {
+  message: string;
+  messageBarType: MessageBarType;
+}
 
 export interface IGlossaryItem {
   key: string;
@@ -21,8 +27,8 @@ export interface IGlossary {
 
 export interface IGlossaryStore {
   saveAsync(glossary: IGlossary): Promise<string>;
-  loadAsync(id: string): Promise<IGlossary>;
-  clearAsync(id: string): Promise<void>;
+  loadAsync(): Promise<IGlossary>;
+  clearAsync(): Promise<void>;
 }
 
 export interface IGlossaryXmlSerializer {
@@ -30,7 +36,7 @@ export interface IGlossaryXmlSerializer {
   deserialize(xml: string): IGlossary;
 }
 
-export interface IDocumentCustomXmlProxy {
+export interface IDocCustomXmlProxy {
   getXmlPartByIdAsync(id: string): Promise<Office.AsyncResult<Office.CustomXmlPart>>;
   getXmlValueAsync(xmlPart: Office.CustomXmlPart): Promise<string>;
 }

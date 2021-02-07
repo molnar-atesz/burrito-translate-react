@@ -1,23 +1,20 @@
-import { IGlossary, IGlossaryXmlSerializer } from "../types/glossary";
+import { IGlossary, IGlossaryStore, IGlossaryXmlSerializer } from "../types/glossary";
 import { ID_SETTINGS_KEY } from "../utils/constants";
 
 // TODO: wrap Office into a mockable class - Proxy?
-export default class StorageService {
+export default class StorageService implements IGlossaryStore {
   private serializer: IGlossaryXmlSerializer;
 
   constructor(xmlSerializer: IGlossaryXmlSerializer) {
     this.serializer = xmlSerializer;
   }
 
-  /**
-   * persistGlossary
-   */
-  public save(glossary: IGlossary): Promise<string> {
+  public saveAsync(glossary: IGlossary): Promise<string> {
     const glossaryXML = this.serializer.serialize(glossary);
     const doc = Office.context.document;
 
     return new Promise<string>((resolve, _) => {
-      this.clear().then(() => {
+      this.clearAsync().then(() => {
         doc.customXmlParts.addAsync(glossaryXML, xmlPart => {
           doc.settings.set(ID_SETTINGS_KEY, xmlPart.value.id);
           doc.settings.saveAsync(() => {
@@ -28,10 +25,7 @@ export default class StorageService {
     });
   }
 
-  /**
-   * load
-   */
-  public load(): Promise<IGlossary> {
+  public loadAsync(): Promise<IGlossary> {
     return new Promise<IGlossary>((resolve, reject) => {
       const id = Office.context.document.settings.get(ID_SETTINGS_KEY);
       if (!id) {
@@ -50,7 +44,7 @@ export default class StorageService {
     });
   }
 
-  private clear(): Promise<void> {
+  public clearAsync(): Promise<void> {
     return new Promise<void>((resolve, __) => {
       const id = Office.context.document.settings.get(ID_SETTINGS_KEY);
       if (!!id) {
