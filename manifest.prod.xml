@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
   <Id>f25fec96-36a6-4e0c-8377-d729762c8453</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.1.0.0</Version>
   <ProviderName>Attila Molnár</ProviderName>
   <DefaultLocale>hu-HU</DefaultLocale>
   <DisplayName DefaultValue="Burrito Translate"/>
   <Description DefaultValue="Just translate your book and I land you a hand."/>
-  <IconUrl DefaultValue="http://molnar-atesz.github.io/burrito-translate-reactassets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="http://molnar-atesz.github.io/burrito-translate-reactassets/icon-64.png"/>
+  <IconUrl DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://github.com/molnar-atesz"/>
   <AppDomains>
     <AppDomain>https://github.com/molnar-atesz</AppDomain>
@@ -16,7 +16,7 @@
     <Host Name="Document"/>
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="http://molnar-atesz.github.io/burrito-translate-reacttaskpane.html"/>
+    <SourceLocation DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/taskpane.html"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
@@ -62,14 +62,14 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="http://molnar-atesz.github.io/burrito-translate-reactassets/icon-16.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="http://molnar-atesz.github.io/burrito-translate-reactassets/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="http://molnar-atesz.github.io/burrito-translate-reactassets/icon-80.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/assets/icon-16.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/assets/icon-32.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
-        <bt:Url id="Commands.Url" DefaultValue="http://molnar-atesz.github.io/burrito-translate-reactcommands.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="http://molnar-atesz.github.io/burrito-translate-reacttaskpane.html"/>
+        <bt:Url id="Commands.Url" DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/commands.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="http://molnar-atesz.github.io/burrito-translate-react/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Burrito Translate for a better translation experience."/>
