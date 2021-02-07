@@ -7,7 +7,7 @@ export interface INotification {
 }
 
 export interface IGlossaryItem {
-  key: string;
+  key?: string;
   original: string;
   translation: string;
   note?: string;

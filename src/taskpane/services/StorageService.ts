@@ -1,7 +1,6 @@
 import { IGlossary, IGlossaryStore, IGlossaryXmlSerializer } from "../types/glossary";
 import { ID_SETTINGS_KEY } from "../utils/constants";
 
-// TODO: wrap Office into a mockable class - Proxy?
 export default class StorageService implements IGlossaryStore {
   private serializer: IGlossaryXmlSerializer;
 

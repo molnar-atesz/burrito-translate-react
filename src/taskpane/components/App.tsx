@@ -6,7 +6,7 @@ import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 
-import { IGlossary, IGlossaryStore, IGlossaryXmlSerializer, INotification } from "../types/glossary";
+import { IGlossary, IGlossaryItem, IGlossaryStore, IGlossaryXmlSerializer, INotification } from "../types/glossary";
 import StorageService from "../services/StorageService";
 import { Glossary, Language } from "../models/Glossary";
 import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
@@ -14,7 +14,7 @@ import { XMLNS } from "../utils/constants";
 
 import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
-import GlossaryTable, { IGlossaryItem } from "./GlossaryTable";
+import GlossaryTable from "./GlossaryTable";
 import NewGlossary from "./NewGlossary";
 
 export interface IAppProps {
@@ -23,7 +23,6 @@ export interface IAppProps {
 
 export interface IAppState {
   glossary?: IGlossary;
-  glossaryItems: IGlossaryItem[];
   notification: INotification,
   edit: boolean
 }
@@ -41,15 +40,15 @@ const verticalStackProps: IStackProps = {
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
-  private glossaryStore: IGlossaryStore;
-  private serializer: IGlossaryXmlSerializer;
+  private readonly glossaryStore: IGlossaryStore;
+  private readonly serializer: IGlossaryXmlSerializer;
+  private glossary: IGlossary;
   
   constructor(props) {
     super(props);
 
     this.state = {
       glossary: null,
-      glossaryItems: [],
       notification: {
         message: '',
         messageBarType: MessageBarType.info
@@ -66,13 +65,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
   private bindMethodsToThis() {
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
-    this.saveGlossary = this.saveGlossary.bind(this);
-    this.load = this.load.bind(this);
-    this.edit = this.edit.bind(this);
-    this.createGlossary = this.createGlossary.bind(this);
+    this.onSaveGlossary = this.onSaveGlossary.bind(this);
+    this.onLoadGlossary = this.onLoadGlossary.bind(this);
+    this.onEditMode = this.onEditMode.bind(this);
+    this.onCreateGlossary = this.onCreateGlossary.bind(this);
   }
 
-  edit(): boolean {
+  onEditMode(): boolean {
     this.setState({
       edit: !this.state.edit
     })
@@ -80,16 +79,17 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   addWord(word: IGlossaryItem) {
+    this.glossary.addItem(word);
     this.setState({
       edit: false,
-      glossaryItems: [...this.state.glossaryItems, word]
+      glossary: { ...this.state.glossary, items: this.glossary.items }
     });
   }
 
-  createGlossary(source: Language, target: Language) {
-    let glossary = new Glossary(source, target);
+  onCreateGlossary(source: Language, target: Language) {
+    this.glossary = new Glossary(source, target);
     this.setState({
-      glossary: glossary
+      glossary: this.glossary
     });
   }
 
@@ -102,22 +102,22 @@ export default class App extends React.Component<IAppProps, IAppState> {
     });
   }
 
-  saveGlossary(): boolean {
+  onSaveGlossary(): boolean {
     this.glossaryStore.saveAsync(this.state.glossary).then((_) => {
-      this.setNotification('Mentés sikeres.', MessageBarType.success);
+      this.setNotification('Saved successfully.', MessageBarType.success);
     }).catch(err => {
       console.log(err);
-      this.setNotification('Hiba történt!', MessageBarType.error);
+      this.setNotification('Saving failed!', MessageBarType.error);
     });
     return true;
   }
 
-  load(): boolean {
+  onLoadGlossary(): boolean {
     this.glossaryStore.loadAsync().then((loadedGlossary) =>{
       this.setState({
         glossary: loadedGlossary,
         notification: {
-          message: 'Betöltés sikeres',
+          message: 'Loaded successfully',
           messageBarType: MessageBarType.success
         }
       });
@@ -126,7 +126,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   componentDidMount() {
-    this.load();
+    this.onLoadGlossary();
   }
 
   render() {
@@ -134,7 +134,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
       <div>
         <Stack tokens={{childrenGap: 10}}>
           <Stack.Item align="stretch">
-              <ControlPanel onNew={this.edit} onLoad={this.load} onSave={this.saveGlossary} />
+              <ControlPanel onNew={this.onEditMode} onLoad={this.onLoadGlossary} onSave={this.onSaveGlossary} />
           </Stack.Item>
 
           {(!!this.state.edit) && <Stack.Item align="center">
@@ -143,11 +143,11 @@ export default class App extends React.Component<IAppProps, IAppState> {
           }
 
           <Stack.Item align="center">
-            {(!this.state.glossary) && <NewGlossary createGlossary={this.createGlossary}></NewGlossary>}
+            {(!this.state.glossary) && <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>}
           </Stack.Item>
           
           <Stack.Item align="stretch">
-            {(this.state.glossary) && <GlossaryTable items={this.state.glossaryItems} notify={this.setNotification}></GlossaryTable>}
+            {(this.state.glossary) && <GlossaryTable glossary={this.state.glossary} notify={this.setNotification}></GlossaryTable>}
           </Stack.Item>
         </Stack>
 

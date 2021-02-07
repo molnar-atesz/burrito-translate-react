@@ -40,7 +40,7 @@ export class Glossary implements IGlossary {
     if (!!this.items.find(it => it.original === newItem.original)) {
       throw new Error(`Already contains word '${newItem.original}'.`);
     }
-
+    newItem.key = (this.items.length + 1).toString();
     this.items.push(newItem);
   }
 

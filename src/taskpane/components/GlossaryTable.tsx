@@ -15,16 +15,11 @@ import React = require("react");
 import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { IconButton, IIconProps, ITooltipHostStyles, MessageBarType, TooltipHost } from 'office-ui-fabric-react';
-
-export interface IGlossaryItem {
-    key: string,
-    hu: string;
-    en: string;
-    note?: string;
-}
+import { IGlossary, IGlossaryItem } from '../types/glossary';
+import { Language } from '../models/Glossary';
 
 export interface IGlossaryTableProps {
-    items: IGlossaryItem[];
+    glossary: IGlossary;
     notify: (message: string, messageType?: MessageBarType) => any
 }
 
@@ -47,37 +42,11 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         super(props);
 
         const columns: IColumn[] = [
-            {
-                key: 'enCol',
-                name: 'Angol',
-                fieldName: 'en',
-                minWidth: 50,
-                maxWidth: 90,
-                isMultiline: true,
-                isResizable: true,
-                sortAscendingAriaLabel: 'Rendezés A..Z',
-                sortDescendingAriaLabel: 'Rendezés Z..A',
-                onColumnClick: this._onColumnClick,
-                data: 'string',
-                isPadded: true
-            },
-            {
-                key: 'huCol',
-                name: 'Magyar',
-                fieldName: 'hu',
-                minWidth: 50,
-                maxWidth: 90,
-                isMultiline: true,
-                isResizable: true,
-                sortAscendingAriaLabel: 'Rendezés A..Z',
-                sortDescendingAriaLabel: 'Rendezés Z..A',
-                onColumnClick: this._onColumnClick,
-                data: 'string',
-                isPadded: true
-            },
+            this._getLanguageColumn(this.props.glossary.source, true),
+            this._getLanguageColumn(this.props.glossary.target),
             {
                 key: 'noteCol',
-                name: 'Jegyzet',
+                name: 'Note',
                 fieldName: 'note',
                 minWidth: 50,
                 maxWidth: 50,
@@ -105,18 +74,18 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     }
 
     componentDidUpdate(prevProps: IGlossaryTableProps) {
-        if(prevProps.items !== this.props.items) {
-            this._allItems = this.props.items;
+        if(prevProps.glossary !== this.props.glossary) {
+            this._allItems = this.props.glossary.items;
             this.setState({
-                items: this._allItems
+                items: [...this._allItems]
             });
         }
     }
 
     componentDidMount() {
-        this._allItems = this.props.items;
+        this._allItems = this.props.glossary.items;
         this.setState({
-            items: this._allItems
+            items: [...this._allItems]
         });
     }
 
@@ -133,10 +102,10 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         return (
                 <Stack tokens={stackTokens} {...stackProps}>
                     <Stack.Item align="center">
-                        <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Szószedet</h2>
+                        <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
                     </Stack.Item>
                     <Stack.Item align="stretch">
-                        <SearchBox placeholder="Keresés (angol)" onChange={this._onChangeText} />
+                        <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} />
                     </Stack.Item>
                     <Stack.Item align="stretch">
                         <DetailsList
@@ -157,12 +126,33 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
                 </Stack>
         );
     }
+    
+    private _getLanguageColumn(lang: Language, isSource: boolean = false): IColumn {
+        const headerPrefix = isSource ? 'From' : 'To';
+        const columnHeader = `${headerPrefix} (${lang.name})`;
+        const fieldName = isSource ? 'original' : 'translation';
+
+        return {
+            key: `${headerPrefix}Col`,
+            name: columnHeader,
+            fieldName: fieldName,
+            minWidth: 50,
+            maxWidth: 80,
+            isMultiline: true,
+            isResizable: true,
+            sortAscendingAriaLabel: 'Sort A..Z',
+            sortDescendingAriaLabel: 'Sort Z..A',
+            onColumnClick: this._onOrderByColumn,
+            data: 'string',
+            isPadded: true
+        };
+    }
 
     private async _insertWord(item: IGlossaryItem) {
         await Word.run(async (context) => {
-            Office.context.document.setSelectedDataAsync(item.hu, asyncResult => {
+            Office.context.document.setSelectedDataAsync(item.translation, asyncResult => {
                 if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-                    this.props.notify("Nem sikerült beszúrni", MessageBarType.error);
+                    this.props.notify("Insertion failed", MessageBarType.error);
                 }
             });
             await context.sync();
@@ -173,26 +163,26 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         return item.key;
     }
     
-    private _onChangeText = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
+    private _onSearchTextChanged = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
-            items: text ? this._allItems.filter(i => i.en.toLowerCase().indexOf(text.toLowerCase()) > -1) : this._allItems,
+            items: text ? this._allItems.filter(item => item.original.toLowerCase().indexOf(text.toLowerCase()) > -1) : this._allItems,
         });
     };
 
-    private _onColumnClick = (_: React.MouseEvent<HTMLElement>, column: IColumn): void => {
+    private _onOrderByColumn = (_: React.MouseEvent<HTMLElement>, clickedCol: IColumn): void => {
         const { columns, items } = this.state;
         const newColumns: IColumn[] = columns.slice();
-        const currColumn: IColumn = newColumns.filter(currCol => column.key === currCol.key)[0];
-        newColumns.forEach((newCol: IColumn) => {
-          if (newCol === currColumn) {
-            currColumn.isSortedDescending = !currColumn.isSortedDescending;
-            currColumn.isSorted = true;
+        const clickedColumn: IColumn = newColumns.filter(col => clickedCol.key === col.key)[0];
+        newColumns.forEach((column: IColumn) => {
+          if (column === clickedColumn) {
+            clickedColumn.isSortedDescending = !clickedColumn.isSortedDescending;
+            clickedColumn.isSorted = true;
           } else {
-            newCol.isSorted = false;
-            newCol.isSortedDescending = true;
+            column.isSorted = false;
+            column.isSortedDescending = true;
           }
         });
-        const newItems = _copyAndSort(items, currColumn.fieldName!, currColumn.isSortedDescending);
+        const newItems = _copyAndSort(items, clickedColumn.fieldName!, clickedColumn.isSortedDescending);
         this.setState({
           columns: newColumns,
           items: newItems,
@@ -245,7 +235,7 @@ function _copyAndSort<IGlossaryItem>(items: IGlossaryItem[], columnKey: string, 
 function _getPropertyLower(item: any, key: any): string {
     let value = item[key];
     let valueLower = '';
-    if(typeof value === 'string'){
+    if(typeof value === 'string') {
         valueLower = value.toLocaleLowerCase();
     }
     return valueLower;
