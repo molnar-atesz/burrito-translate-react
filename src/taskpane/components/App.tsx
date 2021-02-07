@@ -27,18 +27,6 @@ export interface IAppState {
   edit: boolean
 }
 
-const verticalStackProps: IStackProps = {
-  styles: { 
-    root: { 
-      overflow: 'hidden',
-      width: '100%',
-      position: "absolute",
-      bottom: '0px'
-    }
-  },
-  verticalAlign: "end"
-}
-
 export default class App extends React.Component<IAppProps, IAppState> {
   private readonly glossaryStore: IGlossaryStore;
   private readonly serializer: IGlossaryXmlSerializer;
@@ -134,6 +122,18 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   render() {
+    const notificationStackProps: IStackProps = {
+      styles: { 
+        root: { 
+          overflow: 'hidden',
+          width: '100%',
+          position: "absolute",
+          bottom: '0px'
+        }
+      },
+      verticalAlign: "end"
+    }
+
     return (
       <div>
         <Stack tokens={{childrenGap: 10}}>
@@ -155,7 +155,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
           </Stack.Item>
         </Stack>
 
-        <Stack {...verticalStackProps}>
+        <Stack {...notificationStackProps}>
             {(!!this.state.notification.message) && <MessageBar
               messageBarType={this.state.notification.messageBarType}
               isMultiline={true}
