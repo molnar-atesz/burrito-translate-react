@@ -13,8 +13,12 @@ import {
   } from 'office-ui-fabric-react/lib/DetailsList';
 import React = require("react");
 import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
+import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react/lib/Tooltip"
+import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
+import { IIconProps } from 'office-ui-fabric-react/lib/Icon';
+import { IconButton } from "office-ui-fabric-react/lib/Button";
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
-import { IconButton, IIconProps, ITooltipHostStyles, MessageBarType, TooltipHost } from 'office-ui-fabric-react';
+
 import { IGlossary, IGlossaryItem } from '../types/glossary';
 import { Language } from '../models/Glossary';
 import { copyAndSortItems } from '../utils/helpers';

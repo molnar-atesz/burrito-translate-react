@@ -1,4 +1,4 @@
-import { IContextualMenuItem } from "office-ui-fabric-react";
+import { IContextualMenuItem } from "office-ui-fabric-react/lib/ContextualMenu";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import React = require("react");
 

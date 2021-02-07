@@ -1,4 +1,5 @@
-import { PrimaryButton, TextField } from "office-ui-fabric-react";
+import { TextField } from "office-ui-fabric-react/lib/TextField";
+import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import React = require("react");
 import { IGlossaryItem } from "../types/glossary";
