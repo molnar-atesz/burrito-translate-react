@@ -1,26 +1,27 @@
 import { PrimaryButton, TextField } from "office-ui-fabric-react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import React = require("react");
-import { ITranslationMemoryItem } from "./TranslationMemory";
-
-const stackTokens = { childrenGap: 5 };
+import { IGlossaryItem } from "../types/glossary";
+import { VERTICAL_STACK_TOKENS } from "../utils/constants";
 
 export interface INewItemProps {
     addWord: any
 }
 
-export default class NewItem extends React.Component<INewItemProps, ITranslationMemoryItem | any> {
+export default class NewItem extends React.Component<INewItemProps, IGlossaryItem | any> {
     constructor(props) {
         super(props);
-        this.state = { 
-            hu: "",
-            en: "",
+        this.state = {
+            key: "",
+            original: "",
+            translation: "",
             note: ""
         };
-        this.handleInputChange = this.handleInputChange.bind(this);
+        this._onInputChange = this._onInputChange.bind(this);
+        this._onSave = this._onSave.bind(this);
     }
 
-    private handleInputChange(event) {
+    private _onInputChange(event) {
         const target = event.target;
         const name = target.name;
         this.setState({
@@ -28,23 +29,23 @@ export default class NewItem extends React.Component<INewItemProps, ITranslation
         });
     }
 
-    private save() {
+    private _onSave() {
         const normalized = {
-            hu: this.state.hu.trim(),
-            en: this.state.en.trim(),
+            original: this.state.original.trim(),
+            translation: this.state.translation.trim(),
             note: this.state.note?.trim()
         }
         this.props.addWord(normalized);
-        this.setState({ hu:"", en:"", note:"" });
+        this.setState({ original:"", translation:"", note:"" });
     }
 
     public render() {
         return (
-            <Stack verticalAlign="center" tokens={stackTokens}>
-                <TextField label="Angol" name="en" value={this.state.en} onChange={this.handleInputChange} />
-                <TextField label="Magyar" name="hu" value={this.state.hu} onChange={this.handleInputChange} />
-                <TextField label="Megjegyzés" name="note" multiline rows={3} value={this.state.note} onChange={this.handleInputChange} />
-                <PrimaryButton text="Hozzáadás" onClick={ () => this.save() } />
+            <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
+                <TextField label="Word" name="original" value={this.state.original} onChange={this._onInputChange} />
+                <TextField label="Translation" name="translation" value={this.state.translation} onChange={this._onInputChange} />
+                <TextField label="Note" name="note" multiline rows={3} value={this.state.note} onChange={this._onInputChange} />
+                <PrimaryButton text="Add" onClick={ () => this._onSave() } />
             </Stack>
         );
     }
