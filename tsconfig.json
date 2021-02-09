@@ -23,7 +23,10 @@
     ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "/src/**/*.test.ts",
+    "/src/**/*.spec.tsx",
+    "dist"
   ],
   "compileOnSave": false,
   "buildOnSave": false
