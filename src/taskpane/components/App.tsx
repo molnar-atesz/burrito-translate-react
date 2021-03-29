@@ -6,7 +6,7 @@ import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 
 import { IGlossary, IGlossaryItem, IGlossaryStore, IGlossaryXmlSerializer, INotification } from "../types/glossary";
-import StorageService from "../services/StorageService";
+import CustomXmlStorageService from "../services/CustomXmlStorageService";
 import { Glossary, Language } from "../models/Glossary";
 import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
 import { XMLNS } from "../utils/constants";
@@ -22,29 +22,29 @@ export interface IAppProps {
 
 export interface IAppState {
   glossary?: IGlossary;
-  notification: INotification,
-  edit: boolean
+  notification: INotification;
+  edit: boolean;
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
   private readonly glossaryStore: IGlossaryStore;
   private readonly serializer: IGlossaryXmlSerializer;
   private glossary: IGlossary;
-  
+
   constructor(props) {
     super(props);
 
     this.state = {
       glossary: null,
       notification: {
-        message: '',
+        message: "",
         messageBarType: MessageBarType.info
       },
       edit: false
     };
 
     this.serializer = new GlossaryXmlSerializer(XMLNS);
-    this.glossaryStore = new StorageService(this.serializer);
+    this.glossaryStore = new CustomXmlStorageService(this.serializer);
 
     this.bindMethodsToThis();
   }
@@ -56,12 +56,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.onLoadGlossary = this.onLoadGlossary.bind(this);
     this.onEditMode = this.onEditMode.bind(this);
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
+    this.onExport = this.onExport.bind(this);
   }
 
   onEditMode(): boolean {
     this.setState({
       edit: !this.state.edit
-    })
+    });
     return true;
   }
 
@@ -87,32 +88,58 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.setState({
       notification: {
         message: message,
-        messageBarType: (!messageType) ? MessageBarType.info : messageType
+        messageBarType: !messageType ? MessageBarType.info : messageType
       }
     });
   }
 
   onSaveGlossary(): boolean {
-    this.glossaryStore.saveAsync(this.state.glossary).then((_) => {
-      this.setNotification('Saved successfully.', MessageBarType.success);
-    }).catch(err => {
-      console.log(err);
-      this.setNotification('Saving failed!', MessageBarType.error);
-    });
+    this.glossaryStore
+      .saveAsync(this.state.glossary)
+      .then(_ => {
+        this.setNotification("Saved successfully.", MessageBarType.success);
+      })
+      .catch(err => {
+        console.log(err);
+        this.setNotification("Saving failed!", MessageBarType.error);
+      });
     return true;
   }
 
   onLoadGlossary(): boolean {
-    this.glossaryStore.loadAsync().then((loadedGlossary) => {
+    this.glossaryStore.loadAsync().then(loadedGlossary => {
       this.glossary = loadedGlossary;
       this.setState({
         glossary: loadedGlossary,
         notification: {
-          message: 'Loaded successfully',
+          message: "Loaded successfully",
           messageBarType: MessageBarType.success
         }
       });
     });
+    return true;
+  }
+
+  onExport(): boolean {
+    const glossaryJSON = JSON.stringify(this.state.glossary);
+    fetch("http://localhost:7071/api/ExportToCsv", {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "text/csv"
+      },
+      body: glossaryJSON
+    })
+      .then(resp => {
+        return resp.text();
+      })
+      .then(csv => console.log(`this is the csv content: ${csv}`))
+      .catch(err => {
+        console.error(err);
+      });
+
     return true;
   }
 
@@ -122,47 +149,57 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   render() {
     const notificationStackProps: IStackProps = {
-      styles: { 
-        root: { 
-          overflow: 'hidden',
-          width: '100%',
+      styles: {
+        root: {
+          overflow: "hidden",
+          width: "100%",
           position: "absolute",
-          bottom: '0px'
+          bottom: "0px"
         }
       },
       verticalAlign: "end"
-    }
+    };
 
     return (
       <div>
-        <Stack tokens={{childrenGap: 10}}>
+        <Stack tokens={{ childrenGap: 10 }}>
           <Stack.Item align="stretch">
-              <ControlPanel onNew={this.onEditMode} onLoad={this.onLoadGlossary} onSave={this.onSaveGlossary} />
+            <ControlPanel
+              onNew={this.onEditMode}
+              onLoad={this.onLoadGlossary}
+              onSave={this.onSaveGlossary}
+              onExport={this.onExport}
+            />
           </Stack.Item>
 
-          {(!!this.state.edit) && <Stack.Item align="center">
+          {!!this.state.edit && (
+            <Stack.Item align="center">
               <NewItem addWord={this.addWord}></NewItem>
             </Stack.Item>
-          }
+          )}
 
           <Stack.Item align="center">
-            {(!this.state.glossary) && <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>}
+            {!this.state.glossary && <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>}
           </Stack.Item>
-          
+
           <Stack.Item align="stretch">
-            {(this.state.glossary) && <GlossaryTable glossary={this.state.glossary} notify={this.setNotification}></GlossaryTable>}
+            {this.state.glossary && (
+              <GlossaryTable glossary={this.state.glossary} notify={this.setNotification}></GlossaryTable>
+            )}
           </Stack.Item>
         </Stack>
 
         <Stack {...notificationStackProps}>
-            {(!!this.state.notification.message) && <MessageBar
+          {!!this.state.notification.message && (
+            <MessageBar
               messageBarType={this.state.notification.messageBarType}
               isMultiline={true}
               onDismiss={() => this.setNotification(undefined)}
               dismissButtonAriaLabel="Close"
-              >
+            >
               {this.state.notification.message}
-            </MessageBar>}
+            </MessageBar>
+          )}
         </Stack>
       </div>
     );

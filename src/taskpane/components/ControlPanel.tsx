@@ -6,6 +6,7 @@ export interface IControlPanelProps {
     onNew(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
     onSave(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
     onLoad(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
+    onExport(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
 }
 
 export default class ControlPanel extends React.Component<IControlPanelProps> {
@@ -34,6 +35,13 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
                 cacheKey: 'loadGlossaryCache',
                 iconProps: { iconName: 'Upload' },
                 onClick: this.props.onLoad
+            },
+            {
+                key: "exportCsv",
+                text: "Export to CSV",
+                cacheKey: 'exportCsvCache',
+                iconProps: { iconName: 'Export' },
+                onClick: this.props.onExport
             }
         ]
     }
