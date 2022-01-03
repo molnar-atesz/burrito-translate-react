@@ -15,6 +15,7 @@ import ControlPanel from "./ControlPanel";
 import NewItem from "./NewItem";
 import GlossaryTable from "./GlossaryTable";
 import NewGlossary from "./NewGlossary";
+import ImportCsv from "./ImportCsv";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -24,6 +25,7 @@ export interface IAppState {
   glossary?: IGlossary;
   notification: INotification;
   edit: boolean;
+  import: boolean;
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
@@ -40,7 +42,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
         message: "",
         messageBarType: MessageBarType.info
       },
-      edit: false
+      edit: false,
+      import: false
     };
 
     this.serializer = new GlossaryXmlSerializer(XMLNS);
@@ -56,6 +59,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.onLoadGlossary = this.onLoadGlossary.bind(this);
     this.onEditMode = this.onEditMode.bind(this);
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
+    this.onImport = this.onImport.bind(this);
     this.onExport = this.onExport.bind(this);
   }
 
@@ -120,6 +124,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
+  onImport(): boolean {
+    this.setState({
+      import: !this.state.import
+    });
+    return true;
+  }
+
   onExport(): boolean {
     const glossaryJSON = JSON.stringify(this.state.glossary);
     fetch("http://localhost:7071/api/ExportToCsv", {
@@ -168,6 +179,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
               onNew={this.onEditMode}
               onLoad={this.onLoadGlossary}
               onSave={this.onSaveGlossary}
+              onImport={this.onImport}
               onExport={this.onExport}
             />
           </Stack.Item>
@@ -175,6 +187,12 @@ export default class App extends React.Component<IAppProps, IAppState> {
           {!!this.state.edit && (
             <Stack.Item align="center">
               <NewItem addWord={this.addWord}></NewItem>
+            </Stack.Item>
+          )}
+
+          {!!this.state.import && (
+            <Stack.Item align="center">
+              <ImportCsv />
             </Stack.Item>
           )}
 
