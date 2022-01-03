@@ -7,7 +7,7 @@
   <DisplayName DefaultValue="Burrito Translate"/>
   <Description DefaultValue="Just translate your book and I land you a hand."/>
   <IconUrl DefaultValue="https://molnar-atesz.github.io/burrito-translate-react/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://molnar-atesz.github.io/burrito-translate-react/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://molnar-atesz.github.io/burrito-translate-react/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://github.com/molnar-atesz"/>
   <AppDomains>
     <AppDomain>https://github.com/molnar-atesz</AppDomain>
