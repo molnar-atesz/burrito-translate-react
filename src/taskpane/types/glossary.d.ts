@@ -19,10 +19,12 @@ export interface IGlossary {
   target: Language;
   created: Date;
   items: IGlossaryItem[];
-
+  
   addItem(newItem: IGlossaryItem): void;
+  addRange(items: IGlossaryItem[]): void;
   deleteItem(word: string): void;
   editItem(word: string, newTranslation: string, newNote?: string): void;
+  clear(): void;
 }
 
 export interface IGlossaryStore {

@@ -94,4 +94,56 @@ describe("Glossary", () => {
       expect(() => glossary.editItem(word, undefined)).toThrow("Invalid argument: 'newTranslation' is required");
     });
   });
+
+  describe("addRange", () => {
+    let glossary: IGlossary;
+    const russian = new Language("Russian", "ru", 1);
+    const hungarian = new Language("Magyar", "hu", 2);
+
+    beforeEach(() => {
+      glossary = new Glossary(russian, hungarian);
+    });
+
+    test("should add all items from passed array", () => {
+      const items: IGlossaryItem[] = [
+        { key: "a", original: "husk", translation: "dog", note: "no" },
+        { key: "b", original: "test", translation: "teszt", note: "" },
+        { key: "c", original: "word", translation: "szo" }
+      ]
+      glossary.addRange(items);
+      expect(glossary.items).toContain(items[0]);
+      expect(glossary.items).toContain(items[1]);
+      expect(glossary.items).toContain(items[2]);
+    });
+
+    test("should throw error on undefined parameter", () => {
+      expect(() => glossary.addRange(undefined)).toThrow("Invalid argument: 'newItems' is required");
+    });
+  });
+
+  describe("clear", () => {
+    let glossary: IGlossary;
+    const russian = new Language("Russian", "ru", 1);
+    const hungarian = new Language("Magyar", "hu", 2);
+
+    beforeEach(() => {
+      glossary = new Glossary(russian, hungarian);
+      const items: IGlossaryItem[] = [
+        { key: "a", original: "husk", translation: "dog", note: "no" },
+        { key: "b", original: "test", translation: "teszt", note: "" },
+        { key: "c", original: "word", translation: "szo" }
+      ]
+      glossary.addRange(items);
+    });
+
+    test("should remove all previously added items", () => {
+      glossary.clear();
+      expect(glossary.items.length).toEqual(0);
+    });
+
+    test("should throw error on undefined parameter", () => {
+      expect(() => glossary.addRange(undefined)).toThrow("Invalid argument: 'newItems' is required");
+    });
+  });
+
 });

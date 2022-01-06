@@ -60,6 +60,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.onEditMode = this.onEditMode.bind(this);
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
     this.onImport = this.onImport.bind(this);
+    this.onImported = this.onImported.bind(this);
     this.onExport = this.onExport.bind(this);
   }
 
@@ -122,6 +123,17 @@ export default class App extends React.Component<IAppProps, IAppState> {
       });
     });
     return true;
+  }
+
+  onImported(items: IGlossaryItem[]) {
+    this.glossary.addRange(items);
+    this.setState({
+      import: false,
+      glossary: { ...this.state.glossary, items: this.glossary.items }
+    });
+    this.glossaryStore.saveAsync(this.glossary).then(_ => {
+      this.setNotification("Glossary updated", MessageBarType.success);
+    });
   }
 
   onImport(): boolean {
@@ -192,7 +204,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
           {!!this.state.import && (
             <Stack.Item align="center">
-              <ImportCsv />
+              <ImportCsv onImported={this.onImported} notify={this.setNotification} />
             </Stack.Item>
           )}
 

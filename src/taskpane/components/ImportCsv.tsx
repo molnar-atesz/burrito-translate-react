@@ -1,41 +1,56 @@
-import { PrimaryButton } from "office-ui-fabric-react";
+import * as React from "react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
-import React = require("react");
-import { VERTICAL_STACK_TOKENS } from "../utils/constants";
 
-export default class ImprtCsv extends React.Component<any, any> {
+import { VERTICAL_STACK_TOKENS } from "../utils/constants";
+import { CSVReader } from "react-papaparse";
+import { IGlossaryItem } from "../types/glossary";
+import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
+
+export interface IImportCsvProps {
+    onImported: (data: IGlossaryItem[]) => any,
+    notify: (message: string, messageType?: MessageBarType) => any
+}
+
+export default class ImprtCsv extends React.Component<IImportCsvProps, any> {
     constructor(props) {
         super(props);
         this.state = {
-            selectedFile: null,
-            isFilePicked: false
+            importedData: null
         }
-        this._onFileInputChange = this._onFileInputChange.bind(this);
-        this._onSubmit = this._onSubmit.bind(this);
+        this._handleOnDrop = this._handleOnDrop.bind(this);
+        this._handleOnError = this._handleOnError.bind(this);
     }
 
-    private _onFileInputChange(event) {
-        const file = event.target.files[0];
-        this.setState({
-            selectedFile: file,
-            isFilePicked: true
+    private _handleOnDrop(data: any[]) {
+        const items: IGlossaryItem[] = data.map(item => {
+            return {
+                original: item.data[0],
+                translation: item.data[1],
+                note: item.data[2]
+            }
         });
-    }
+        console.log("Data loaded");
+        console.log(items);
+        this.props.onImported(items);
+    };
 
-    private _onSubmit() {
-        console.info(`Import: ${this.state.selectedFile}`);
-    }
+    private _handleOnError(err, file) {
+        this.props.notify(`File import failed: ${file}`, MessageBarType.error);
+        console.log(err);
+    };
 
     public render(): React.ReactNode {
         return (
-            <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
-                <input type="file"
-                    id="fileSelector"
-                    name="fileSelector"
-                    placeholder="Your Glossary.csv"
-                    accept=".csv"
-                    onChange={this._onFileInputChange} />
-                <PrimaryButton text="Import" onClick={this._onSubmit} />
+            <Stack verticalAlign="center"
+                tokens={VERTICAL_STACK_TOKENS}>
+                <CSVReader
+                    onDrop={this._handleOnDrop}
+                    onError={this._handleOnError}
+                    addRemoveButton
+                    accept="text/csv, .csv"
+                >
+                    <span>Drop CSV file here or click to upload</span>
+                </CSVReader>
             </Stack>
         );
     }
