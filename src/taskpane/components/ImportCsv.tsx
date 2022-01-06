@@ -1,3 +1,4 @@
+import { PrimaryButton } from "office-ui-fabric-react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import React = require("react");
 import { VERTICAL_STACK_TOKENS } from "../utils/constants";
@@ -9,6 +10,8 @@ export default class ImprtCsv extends React.Component<any, any> {
             selectedFile: null,
             isFilePicked: false
         }
+        this._onFileInputChange = this._onFileInputChange.bind(this);
+        this._onSubmit = this._onSubmit.bind(this);
     }
 
     private _onFileInputChange(event) {
@@ -20,7 +23,7 @@ export default class ImprtCsv extends React.Component<any, any> {
     }
 
     private _onSubmit() {
-        alert(`Import: ${this.state.selectedFile}`);
+        console.info(`Import: ${this.state.selectedFile}`);
     }
 
     public render(): React.ReactNode {
@@ -31,8 +34,8 @@ export default class ImprtCsv extends React.Component<any, any> {
                     name="fileSelector"
                     placeholder="Your Glossary.csv"
                     accept=".csv"
-                    onChange={this._onFileInputChange}
-                    onSubmit={this._onSubmit} />
+                    onChange={this._onFileInputChange} />
+                <PrimaryButton text="Import" onClick={this._onSubmit} />
             </Stack>
         );
     }
