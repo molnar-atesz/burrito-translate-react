@@ -44,6 +44,16 @@ export class Glossary implements IGlossary {
     this.items.push(newItem);
   }
 
+  addRange(newItems: IGlossaryItem[]) {
+    if (!newItems) {
+      throw new Error("Invalid argument: 'newItems' is required");
+    }
+
+    newItems.forEach(newItem => {
+      this.addItem(newItem);
+    });
+  }
+
   editItem(word: string, newTranslation: string, newNote?: string) {
     if (!newTranslation) {
       throw new Error("Invalid argument: 'newTranslation' is required");
@@ -56,5 +66,9 @@ export class Glossary implements IGlossary {
 
     item.translation = newTranslation;
     item.note = newNote;
+  }
+
+  clear(): void {
+    this.items.length = 0;
   }
 }

@@ -1,7 +1,8 @@
+import * as React from "react";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
-import React = require("react");
+
 import { IGlossaryItem } from "../types/glossary";
 import { VERTICAL_STACK_TOKENS } from "../utils/constants";
 
@@ -37,7 +38,7 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
             note: this.state.note?.trim()
         }
         this.props.addWord(normalized);
-        this.setState({ original:"", translation:"", note:"" });
+        this.setState({ original: "", translation: "", note: "" });
     }
 
     public render() {
@@ -46,7 +47,7 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
                 <TextField label="Word" name="original" value={this.state.original} onChange={this._onInputChange} />
                 <TextField label="Translation" name="translation" value={this.state.translation} onChange={this._onInputChange} />
                 <TextField label="Note" name="note" multiline rows={3} value={this.state.note} onChange={this._onInputChange} />
-                <PrimaryButton text="Add" onClick={ () => this._onSave() } />
+                <PrimaryButton text="Add" onClick={() => this._onSave()} />
             </Stack>
         );
     }
