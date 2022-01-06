@@ -1,6 +1,6 @@
 import { IContextualMenuItem } from "office-ui-fabric-react/lib/ContextualMenu";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
-import React = require("react");
+import * as React from "react";
 
 export interface IControlPanelProps {
     onNew(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;

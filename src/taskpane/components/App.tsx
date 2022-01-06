@@ -1,6 +1,6 @@
+import * as React from "react";
 import { MessageBar, MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 import { IStackProps, Stack } from "office-ui-fabric-react/lib/Stack";
-import * as React from "react";
 import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
