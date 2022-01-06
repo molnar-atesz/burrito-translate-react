@@ -11,7 +11,7 @@ export interface IImportCsvProps {
     notify: (message: string, messageType?: MessageBarType) => any
 }
 
-export default class ImprtCsv extends React.Component<IImportCsvProps, any> {
+export default class ImportCsv extends React.Component<IImportCsvProps, any> {
     constructor(props) {
         super(props);
         this.state = {
