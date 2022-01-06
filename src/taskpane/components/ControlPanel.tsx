@@ -4,9 +4,13 @@ import * as React from "react";
 
 export interface IControlPanelProps {
     onNew(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
+
     onSave(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
-    onLoad(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
+
     onImport(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
+
+    importDisabled?: boolean;
+
     onExport(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
 }
 
@@ -31,18 +35,12 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
                 onClick: this.props.onSave
             },
             {
-                key: "loadGlossary",
-                text: "Load",
-                cacheKey: 'loadGlossaryCache',
-                iconProps: { iconName: 'Upload' },
-                onClick: this.props.onLoad
-            },
-            {
                 key: "importGlossary",
                 text: "Import CSV",
                 cacheKey: 'importCSv',
                 iconProps: { iconName: 'Import' },
-                onClick: this.props.onImport
+                onClick: this.props.onImport,
+                disabled: this.props.importDisabled
             },
             {
                 key: "exportCsv",
