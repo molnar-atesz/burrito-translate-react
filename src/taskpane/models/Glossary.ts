@@ -37,9 +37,10 @@ export class Glossary implements IGlossary {
       throw new Error("Item should not be empty!");
     }
 
-    if (!!this.items.find(it => it.original === newItem.original)) {
-      throw new Error(`Already contains word '${newItem.original}'.`);
+    if (newItem.original.length == 0) {
+      throw new Error("Original word should not be empty!");
     }
+
     newItem.key = (this.items.length + 1).toString();
     this.items.push(newItem);
   }
@@ -50,7 +51,11 @@ export class Glossary implements IGlossary {
     }
 
     newItems.forEach(newItem => {
-      this.addItem(newItem);
+      try {
+        this.addItem(newItem);
+      } catch (error) {
+        console.info(error.message);
+      }
     });
   }
 
