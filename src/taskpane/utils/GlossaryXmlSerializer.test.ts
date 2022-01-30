@@ -88,6 +88,67 @@ describe("serialize", () => {
     );
   });
 
+  describe("Escaping", () => {
+    beforeEach(() => {
+      serializer = new GlossaryXmlSerializer(XMLNS);
+    });
+
+    test("should escape '&' sign", () => {
+      const item1: IGlossaryItem = { key: "1", original: "the'", translation: "az'", note: "megj'" };
+      glossary.items.push(item1);
+
+      const res = serializer.serialize(glossary);
+
+      expect(res).toEqual(
+        "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='the&apos;' translation='az&apos;' note='megj&apos;' /></items></burritoMemory>"
+      );
+    });
+
+    test("should escape '<' sign", () => {
+      const item1: IGlossaryItem = { key: "1", original: "the<", translation: "az<", note: "megj<" };
+      glossary.items.push(item1);
+
+      const res = serializer.serialize(glossary);
+
+      expect(res).toEqual(
+        "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='the&lt;' translation='az&lt;' note='megj&lt;' /></items></burritoMemory>"
+      );
+    });
+
+    test("should escape '>' sign", () => {
+      const item1: IGlossaryItem = { key: "1", original: "the>", translation: "az>", note: "megj>" };
+      glossary.items.push(item1);
+
+      const res = serializer.serialize(glossary);
+
+      expect(res).toEqual(
+        "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='the&gt;' translation='az&gt;' note='megj&gt;' /></items></burritoMemory>"
+      );
+    });
+
+    test("should escape '&' sign", () => {
+      const item1: IGlossaryItem = { key: "1", original: "&the", translation: "&az", note: "&megj" };
+      glossary.items.push(item1);
+
+      const res = serializer.serialize(glossary);
+
+      expect(res).toEqual(
+        "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='&amp;the' translation='&amp;az' note='&amp;megj' /></items></burritoMemory>"
+      );
+    });
+
+    test("should escape '\"' sign", () => {
+      const item1: IGlossaryItem = { key: "1", original: '"the"', translation: 'az"', note: 'megj"' };
+      glossary.items.push(item1);
+
+      const res = serializer.serialize(glossary);
+
+      expect(res).toEqual(
+        "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='&quot;the&quot;' translation='az&quot;' note='megj&quot;' /></items></burritoMemory>"
+      );
+    });
+  });
+
   describe("deserialize", () => {
     let serializer: IGlossaryXmlSerializer;
     const CUSTOM_XML: string =
@@ -119,6 +180,16 @@ describe("serialize", () => {
       expect(res.items.length).toEqual(2);
       expect(res.items[0]).toEqual(item1);
       expect(res.items[1]).toEqual(item2);
+    });
+
+    test("should unescape xml default words", () => {
+      const xmlToDeserialize = "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='I&apos;m &lt;me&amp;myself&gt;' translation='az&quot;' note='megj&quot;' /></items></burritoMemory>";
+
+      const res = serializer.deserialize(xmlToDeserialize);
+      const item1: IGlossaryItem = { key: "1", original: "I'm <me&myself>", translation: 'az"', note: 'megj"' };
+
+      expect(res.items.length).toEqual(1);
+      expect(res.items[0]).toEqual(item1);
     });
   });
 });

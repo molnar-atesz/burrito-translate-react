@@ -4,21 +4,29 @@ import { LANGUAGES } from "./constants";
 
 export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
   private readonly XMLNS: string;
+  private readonly XML_CHAR_MAP = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;',
+    "'": '&apos;'
+  };
 
   constructor(xmlns: string) {
     if (!xmlns) {
       throw new Error("Invalid argument: xmlns is required");
     }
     this.XMLNS = xmlns;
+    this.escapeXml = this.escapeXml.bind(this);
   }
 
   public serialize(glossary: IGlossary): string {
-    let xmlString = `<burritoMemory xmlns='${this.XMLNS}'>
-      <source>${glossary.source.abbreviation}</source>
-      <target>${glossary.target.abbreviation}</target>
-      <created>${glossary.created.toJSON()}</created>
-      ${this.serializeItems(glossary)}
-    </burritoMemory>`;
+    let xmlString = `<burritoMemory xmlns='${this.XMLNS}'>`;
+    xmlString += `<source>${glossary.source.abbreviation}</source>`;
+    xmlString += `<target>${glossary.target.abbreviation}</target>`;
+    xmlString += `<created>${glossary.created.toJSON()}</created>`;
+    xmlString += this.serializeItems(glossary);
+    xmlString += "</burritoMemory>";
     return xmlString;
   }
 
@@ -63,11 +71,18 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
   private serializeItems(glossary: IGlossary) {
     let itemsNode = `<items>`;
     glossary.items.forEach((item: IGlossaryItem) => {
-      const noteAttr = !!item.note ? `note='${item.note}' ` : "";
-      itemsNode += `<item original='${item.original}' translation='${item.translation}' ${noteAttr}/>`;
+      const noteAttr = !!item.note ? `note='${this.escapeXml(item.note)}' ` : "";
+      itemsNode += `<item original='${this.escapeXml(item.original)}' translation='${this.escapeXml(item.translation)}' ${noteAttr}/>`;
     });
     itemsNode += `</items>`;
     return itemsNode;
+  }
+
+  private escapeXml(text: string): string {
+    let that = this;
+    return text.replace(/[<>&"']/g, function (ch) {
+      return that.XML_CHAR_MAP[ch];
+    });
   }
 
   private parseXML(xml: string): Document {
