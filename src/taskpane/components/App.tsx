@@ -72,14 +72,18 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   addWord(word: IGlossaryItem) {
-    this.glossary.addItem(word);
-    this.setState({
-      edit: false,
-      glossary: { ...this.state.glossary, items: this.glossary.items }
-    });
-    this.glossaryStore.saveAsync(this.glossary).then(_ => {
-      this.setNotification("Glossary updated", MessageBarType.success);
-    });
+    try {
+      this.glossary.addItem(word);
+      this.setState({
+        edit: false,
+        glossary: { ...this.state.glossary, items: this.glossary.items }
+      });
+      this.glossaryStore.saveAsync(this.glossary).then(_ => {
+        this.setNotification("Glossary updated", MessageBarType.success);
+      });
+    } catch (error) {
+      this.setNotification(error.message, MessageBarType.error);
+    }
   }
 
   onCreateGlossary(source: Language, target: Language) {
@@ -198,7 +202,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
           {!!this.state.edit && (
             <Stack.Item align="center">
-              <NewItem addWord={this.addWord}></NewItem>
+              <NewItem addWord={this.addWord} notify={this.setNotification}></NewItem>
             </Stack.Item>
           )}
 
