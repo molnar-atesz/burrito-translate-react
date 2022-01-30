@@ -61,7 +61,6 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
     this.onImport = this.onImport.bind(this);
     this.onImported = this.onImported.bind(this);
-    this.onExport = this.onExport.bind(this);
   }
 
   onEditMode(): boolean {
@@ -147,29 +146,6 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  onExport(): boolean {
-    const glossaryJSON = JSON.stringify(this.state.glossary);
-    fetch("http://localhost:7071/api/ExportToCsv", {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "text/csv"
-      },
-      body: glossaryJSON
-    })
-      .then(resp => {
-        return resp.text();
-      })
-      .then(csv => console.log(`this is the csv content: ${csv}`))
-      .catch(err => {
-        console.error(err);
-      });
-
-    return true;
-  }
-
   componentDidMount() {
     this.onLoadGlossary();
   }
@@ -193,10 +169,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
           <Stack.Item align="stretch">
             <ControlPanel
               onNew={this.onEditMode}
-              onLoad={this.onLoadGlossary}
               onSave={this.onSaveGlossary}
               onImport={this.onImport}
-              onExport={this.onExport}
             />
           </Stack.Item>
 
