@@ -16,7 +16,7 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
         this._menuItems = [
             {
                 key: "newWord",
-                text: "New word",
+                text: "Word",
                 cacheKey: 'newWordCache',
                 iconProps: { iconName: 'Add' },
                 onClick: this.props.onNew
