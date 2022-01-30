@@ -69,7 +69,7 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
   }
 
   private serializeItems(glossary: IGlossary) {
-    let itemsNode = `<items>`;
+    let itemsNode = `<it2ems>`;
     glossary.items.forEach((item: IGlossaryItem) => {
       const noteAttr = !!item.note ? `note='${this.escapeXml(item.note)}' ` : "";
       itemsNode += `<item original='${this.escapeXml(item.original)}' translation='${this.escapeXml(item.translation)}' ${noteAttr}/>`;
