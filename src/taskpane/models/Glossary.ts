@@ -37,11 +37,26 @@ export class Glossary implements IGlossary {
       throw new Error("Item should not be empty!");
     }
 
-    if (!!this.items.find(it => it.original === newItem.original)) {
-      throw new Error(`Already contains word '${newItem.original}'.`);
+    if (newItem.original.length == 0) {
+      throw new Error("Original word should not be empty!");
     }
+
     newItem.key = (this.items.length + 1).toString();
     this.items.push(newItem);
+  }
+
+  addRange(newItems: IGlossaryItem[]) {
+    if (!newItems) {
+      throw new Error("Invalid argument: 'newItems' is required");
+    }
+
+    newItems.forEach(newItem => {
+      try {
+        this.addItem(newItem);
+      } catch (error) {
+        console.info(error.message);
+      }
+    });
   }
 
   editItem(word: string, newTranslation: string, newNote?: string) {
@@ -56,5 +71,9 @@ export class Glossary implements IGlossary {
 
     item.translation = newTranslation;
     item.note = newNote;
+  }
+
+  clear(): void {
+    this.items.length = 0;
   }
 }

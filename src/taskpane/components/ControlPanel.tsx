@@ -1,11 +1,11 @@
 import { IContextualMenuItem } from "office-ui-fabric-react/lib/ContextualMenu";
 import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
-import React = require("react");
+import * as React from "react";
 
 export interface IControlPanelProps {
     onNew(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
     onSave(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
-    onLoad(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
+    onImport(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
 }
 
 export default class ControlPanel extends React.Component<IControlPanelProps> {
@@ -16,7 +16,7 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
         this._menuItems = [
             {
                 key: "newWord",
-                text: "New word",
+                text: "Word",
                 cacheKey: 'newWordCache',
                 iconProps: { iconName: 'Add' },
                 onClick: this.props.onNew
@@ -29,11 +29,11 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
                 onClick: this.props.onSave
             },
             {
-                key: "loadGlossary",
-                text: "Load",
-                cacheKey: 'loadGlossaryCache',
-                iconProps: { iconName: 'Upload' },
-                onClick: this.props.onLoad
+                key: "importGlossary",
+                text: "Import CSV",
+                cacheKey: 'importCSv',
+                iconProps: { iconName: 'Import' },
+                onClick: this.props.onImport
             }
         ]
     }

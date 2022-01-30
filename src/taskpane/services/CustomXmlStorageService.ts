@@ -1,7 +1,7 @@
 import { IGlossary, IGlossaryStore, IGlossaryXmlSerializer } from "../types/glossary";
 import { ID_SETTINGS_KEY } from "../utils/constants";
 
-export default class StorageService implements IGlossaryStore {
+export default class CustomXmlStorageService implements IGlossaryStore {
   private serializer: IGlossaryXmlSerializer;
 
   constructor(xmlSerializer: IGlossaryXmlSerializer) {

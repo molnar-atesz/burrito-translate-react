@@ -10,7 +10,8 @@
   "config": {
     "app-to-debug": "word",
     "app-type-to-debug": "desktop",
-    "dev-server-port": 3000
+    "dev-server-port": 3000,
+    "document": "https://1drv.ms/w/s!AlQxMgHj2IRwhqR7QZf2IFNpaylWag?e=zdhBfD"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -19,7 +20,7 @@
     "build:dev": "webpack --mode development --https false",
     "build-dev": "webpack --mode development --https false && echo . && echo . && echo . && echo Please use 'build:dev' instead of 'build-dev'.",
     "dev-server": "webpack-dev-server --mode development",
-    "test": "jest --no-cache --runInBand",
+    "test": "jest --runInBand",
     "test-watch": "jest --watchAll --runInBand",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
@@ -36,7 +37,8 @@
     "es6-promise": "^4.2.8",
     "office-ui-fabric-react": "^7.10.0",
     "react": "^16.8.2",
-    "react-dom": "^16.8.2"
+    "react-dom": "^16.8.2",
+    "react-papaparse": "^3.18.1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",

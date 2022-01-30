@@ -10,8 +10,8 @@ import {
     IDetailsListProps,
     IDetailsRowStyles,
     ColumnActionsMode,
-  } from 'office-ui-fabric-react/lib/DetailsList';
-import React = require("react");
+} from 'office-ui-fabric-react/lib/DetailsList';
+import * as React from "react";
 import { IStackProps, IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react/lib/Tooltip"
 import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
@@ -79,7 +79,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     }
 
     componentDidUpdate(prevProps: IGlossaryTableProps) {
-        if(prevProps.glossary !== this.props.glossary) {
+        if (prevProps.glossary !== this.props.glossary) {
             this._allItems = this.props.glossary.items;
             this.setState({
                 items: [...this._allItems]
@@ -105,33 +105,33 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         };
 
         return (
-                <Stack tokens={stackTokens} {...stackProps}>
-                    <Stack.Item align="center">
-                        <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
-                    </Stack.Item>
-                    <Stack.Item align="stretch">
-                        <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} />
-                    </Stack.Item>
-                    <Stack.Item align="stretch">
-                        <DetailsList
-                            items={items}
-                            columns={columns}
-                            getKey={this._getKey}
-                            compact={true}
-                            setKey="none"
-                            selection={this._selection}
-                            layoutMode={DetailsListLayoutMode.justified}
-                            checkboxVisibility={CheckboxVisibility.hidden}
-                            selectionPreservedOnEmptyClick={false}
-                            isHeaderVisible={true}
-                            onRenderRow={this._onRenderRow}
-                            onRenderItemColumn={this._renderItemColumn}
-                        />
-                    </Stack.Item>
-                </Stack>
+            <Stack tokens={stackTokens} {...stackProps}>
+                <Stack.Item align="center">
+                    <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
+                </Stack.Item>
+                <Stack.Item align="stretch">
+                    <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} />
+                </Stack.Item>
+                <Stack.Item align="stretch">
+                    <DetailsList
+                        items={items}
+                        columns={columns}
+                        getKey={this._getKey}
+                        compact={true}
+                        setKey="none"
+                        selection={this._selection}
+                        layoutMode={DetailsListLayoutMode.justified}
+                        checkboxVisibility={CheckboxVisibility.hidden}
+                        selectionPreservedOnEmptyClick={false}
+                        isHeaderVisible={true}
+                        onRenderRow={this._onRenderRow}
+                        onRenderItemColumn={this._renderItemColumn}
+                    />
+                </Stack.Item>
+            </Stack>
         );
     }
-    
+
     private _getLanguageColumn(lang: Language, isSource: boolean = false): IColumn {
         const headerPrefix = isSource ? 'From' : 'To';
         const columnHeader = `${headerPrefix} (${lang.name})`;
@@ -167,7 +167,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     private _getKey(item: any, _?: number): string {
         return item.key;
     }
-    
+
     private _onSearchTextChanged = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
             items: text ? this._allItems.filter(item => item.original.toLowerCase().indexOf(text.toLowerCase()) > -1) : this._allItems,
@@ -179,18 +179,18 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         const newColumns: IColumn[] = columns.slice();
         const clickedColumn: IColumn = newColumns.filter(col => column.key === col.key)[0];
         newColumns.forEach((column: IColumn) => {
-          if (column === clickedColumn) {
-            clickedColumn.isSortedDescending = !clickedColumn.isSortedDescending;
-            clickedColumn.isSorted = true;
-          } else {
-            column.isSorted = false;
-            column.isSortedDescending = true;
-          }
+            if (column === clickedColumn) {
+                clickedColumn.isSortedDescending = !clickedColumn.isSortedDescending;
+                clickedColumn.isSorted = true;
+            } else {
+                column.isSorted = false;
+                column.isSortedDescending = true;
+            }
         });
         const newItems = copyAndSortItems(items, clickedColumn.fieldName!, clickedColumn.isSortedDescending);
         this.setState({
-          columns: newColumns,
-          items: newItems,
+            columns: newColumns,
+            items: newItems,
         });
     }
 
@@ -214,7 +214,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         const tooltipId = `note${index}`
         const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
 
-        if(column.fieldName === 'note' && !!fieldContent) {
+        if (column.fieldName === 'note' && !!fieldContent) {
             return (
                 <TooltipHost content={fieldContent} id={tooltipId} styles={hostStyles}>
                     <IconButton iconProps={commentIcon} aria-describedby={tooltipId} data-selection-disabled={true} />
