@@ -6,12 +6,7 @@ export interface IControlPanelProps {
     onNew(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
 
     onSave(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
-
     onImport(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
-
-    importDisabled?: boolean;
-
-    onExport(e: React.MouseEvent<HTMLElement, MouseEvent>, items?: IContextualMenuItem): boolean;
 }
 
 export default class ControlPanel extends React.Component<IControlPanelProps> {
@@ -22,7 +17,7 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
         this._menuItems = [
             {
                 key: "newWord",
-                text: "New word",
+                text: "Word",
                 cacheKey: 'newWordCache',
                 iconProps: { iconName: 'Add' },
                 onClick: this.props.onNew
@@ -39,15 +34,7 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
                 text: "Import CSV",
                 cacheKey: 'importCSv',
                 iconProps: { iconName: 'Import' },
-                onClick: this.props.onImport,
-                disabled: this.props.importDisabled
-            },
-            {
-                key: "exportCsv",
-                text: "Export to CSV",
-                cacheKey: 'exportCsvCache',
-                iconProps: { iconName: 'Export' },
-                onClick: this.props.onExport
+                onClick: this.props.onImport
             }
         ]
     }
