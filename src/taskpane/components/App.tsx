@@ -166,13 +166,15 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return (
       <div>
         <Stack tokens={{ childrenGap: 10 }}>
-          <Stack.Item align="stretch">
-            <ControlPanel
-              onNew={this.onEditMode}
-              onSave={this.onSaveGlossary}
-              onImport={this.onImport}
-            />
-          </Stack.Item>
+          {!!this.state.glossary &&
+            <Stack.Item align="stretch">
+              <ControlPanel
+                onNew={this.onEditMode}
+                onSave={this.onSaveGlossary}
+                onImport={this.onImport}
+              />
+            </Stack.Item>
+          }
 
           {!!this.state.edit && (
             <Stack.Item align="center">
