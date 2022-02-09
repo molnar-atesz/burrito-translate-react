@@ -31,10 +31,11 @@ export interface IAppState {
 export default class App extends React.Component<IAppProps, IAppState> {
   private readonly glossaryStore: IGlossaryStore;
   private readonly serializer: IGlossaryXmlSerializer;
-  private glossary: IGlossary;
+  private glossary: React.MutableRefObject<IGlossary>;
 
   constructor(props) {
     super(props);
+    this.glossary = React.createRef();
 
     this.state = {
       glossary: null,
@@ -72,12 +73,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   addWord(word: IGlossaryItem) {
     try {
-      this.glossary.addItem(word);
+      this.glossary.current.addItem(word);
       this.setState({
         edit: false,
-        glossary: { ...this.state.glossary, items: this.glossary.items }
+        glossary: this.glossary.current
+
       });
-      this.glossaryStore.saveAsync(this.glossary).then(_ => {
+      this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
         this.setNotification("Glossary updated", MessageBarType.success);
       });
     } catch (error) {
@@ -86,9 +88,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   onCreateGlossary(source: Language, target: Language) {
-    this.glossary = new Glossary(source, target);
+    this.glossary.current = new Glossary(source, target);
     this.setState({
-      glossary: this.glossary
+      glossary: this.glossary.current
     });
   }
 
@@ -116,25 +118,26 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   loadGlossaryFromDoc(): boolean {
     this.glossaryStore.loadAsync().then(loadedGlossary => {
-      this.glossary = loadedGlossary;
+      this.glossary.current = loadedGlossary;
       this.setState({
-        glossary: loadedGlossary,
+        glossary: this.glossary.current,
         notification: {
           message: "Loaded successfully",
           messageBarType: MessageBarType.success
         }
       });
     });
+
     return true;
   }
 
   onImported(items: IGlossaryItem[]) {
-    this.glossary.addRange(items);
+    this.glossary.current.addRange(items);
     this.setState({
       import: false,
-      glossary: { ...this.state.glossary, items: this.glossary.items }
+      glossary: this.glossary.current
     });
-    this.glossaryStore.saveAsync(this.glossary).then(_ => {
+    this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
       this.setNotification("Glossary updated", MessageBarType.success);
     });
   }
