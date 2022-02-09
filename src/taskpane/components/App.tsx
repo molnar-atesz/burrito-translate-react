@@ -56,7 +56,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.onSaveGlossary = this.onSaveGlossary.bind(this);
-    this.onLoadGlossary = this.onLoadGlossary.bind(this);
+    this.loadGlossaryFromDoc = this.loadGlossaryFromDoc.bind(this);
     this.onEditMode = this.onEditMode.bind(this);
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
     this.onImport = this.onImport.bind(this);
@@ -114,7 +114,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  onLoadGlossary(): boolean {
+  loadGlossaryFromDoc(): boolean {
     this.glossaryStore.loadAsync().then(loadedGlossary => {
       this.glossary = loadedGlossary;
       this.setState({
@@ -147,7 +147,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   componentDidMount() {
-    this.onLoadGlossary();
+    this.loadGlossaryFromDoc();
   }
 
   render() {
@@ -166,13 +166,15 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return (
       <div>
         <Stack tokens={{ childrenGap: 10 }}>
-          <Stack.Item align="stretch">
-            <ControlPanel
-              onNew={this.onEditMode}
-              onSave={this.onSaveGlossary}
-              onImport={this.onImport}
-            />
-          </Stack.Item>
+          {!!this.state.glossary &&
+            <Stack.Item align="stretch">
+              <ControlPanel
+                onNew={this.onEditMode}
+                onSave={this.onSaveGlossary}
+                onImport={this.onImport}
+              />
+            </Stack.Item>
+          }
 
           {!!this.state.edit && (
             <Stack.Item align="center">
