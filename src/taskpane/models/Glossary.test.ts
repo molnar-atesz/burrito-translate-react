@@ -167,4 +167,149 @@ describe("Glossary", () => {
     });
   });
 
+  describe('search', () => {
+    let glossary: IGlossary;
+    const english = new Language("English", "en", 1);
+    const hungarian = new Language("Magyar", "hu", 2);
+
+    beforeEach(() => {
+      glossary = new Glossary(english, hungarian);
+      const items: IGlossaryItem[] = [
+        { key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" },
+        { key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" },
+        { key: "3", original: "whole word", translation: "teljes szo" },
+        { key: "4", original: "notwhole word", translation: "nemteljes szo" },
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+        { key: "6", original: "NotWhole Sensitive", translation: "NemTeljes Érzékeny" },
+      ]
+      glossary.addRange(items);
+    });
+
+    test('should return all item if search expression is empty', () => {
+      const searchExpression = "";
+
+      const result = glossary.search(searchExpression);
+
+      expect(result).toEqual(glossary.items);
+    });
+
+    test('should return empty list if the search keyword not found', () => {
+      const keyword = "there-is-no-such-word";
+
+      const result = glossary.search(keyword);
+
+      expect(result).toEqual([]);
+    });
+
+    test('should find words in original case insensitively without option', () => {
+      const searchExpression = "non sensitive";
+      const expectedResult = [
+        { key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" }
+      ];
+
+      const result = glossary.search(searchExpression);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should find words in translation case insensitively without option', () => {
+      const searchExpression = "nem érzékeny";
+      const expectedResult = [
+        { key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" }
+      ];
+
+      const result = glossary.search(searchExpression);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should find words in original case sensitively if search option set', () => {
+      const searchExpression = "SensitivE";
+      const matches = [
+        { key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" },
+      ];
+      const searchOptions = {
+        caseSensitive: true
+      };
+
+      const result = glossary.search(searchExpression, searchOptions);
+
+      expect(result).toEqual(matches);
+    });
+
+    test('should find words in translation case sensitively if search option set', () => {
+      const searchExpression = "ÉrzékenY";
+      const expectedResult = [
+        { key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" }
+      ];
+      const searchOptions = {
+        caseSensitive: true
+      }
+
+      const result = glossary.search(searchExpression, searchOptions);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should find only whole words in original case insensitively when options set', () => {
+      const searchExpression = "whole";
+      const expectedResult = [
+        { key: "3", original: "whole word", translation: "teljes szo" },
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+      ];
+      const searchOptions = {
+        wholeWord: true
+      };
+
+      const result = glossary.search(searchExpression, searchOptions);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should find only whole words in translation case insensitively when options set', () => {
+      const searchExpression = "teljes";
+      const expectedResult = [
+        { key: "3", original: "whole word", translation: "teljes szo" },
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+      ];
+      const searchOptions = {
+        wholeWord: true
+      };
+
+      const result = glossary.search(searchExpression, searchOptions);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should find only case sensitive whole words in original when options set', () => {
+      const searchExpression = "Whole";
+      const expectedResult = [
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+      ];
+      const searchOptions = {
+        caseSensitive: true,
+        wholeWord: true
+      };
+
+      const result = glossary.search(searchExpression, searchOptions);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should find only case sensitive whole words in translation when options set', () => {
+      const searchExpression = "Teljes";
+      const expectedResult = [
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+      ];
+      const searchOptions = {
+        caseSensitive: true,
+        wholeWord: true
+      };
+
+      const result = glossary.search(searchExpression, searchOptions);
+
+      expect(result).toEqual(expectedResult);
+    });
+  });
+
 });

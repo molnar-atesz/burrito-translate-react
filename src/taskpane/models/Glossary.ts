@@ -1,4 +1,4 @@
-import { IGlossary, IGlossaryItem } from "../types/glossary";
+import { IGlossary, IGlossaryItem, ISearchOptions } from "../types/glossary";
 
 export class Language {
   name: string;
@@ -75,5 +75,20 @@ export class Glossary implements IGlossary {
 
   clear(): void {
     this.items.length = 0;
+  }
+
+  search(keyword: string, searchOptions?: ISearchOptions): IGlossaryItem[] {
+    searchOptions = {
+      caseSensitive: searchOptions?.caseSensitive ?? false,
+      wholeWord: searchOptions?.wholeWord ?? false
+    };
+    const result = this.items.filter(item => {
+      let flags = searchOptions.caseSensitive ? 'gm' : 'gmi';
+      let pattern = searchOptions.wholeWord ? `\\b${keyword}\\b` : keyword;
+      let regex = new RegExp(pattern, flags);
+
+      return regex.test(item.original) || regex.test(item.translation);
+    });
+    return [...result];
   }
 }

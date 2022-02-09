@@ -19,9 +19,10 @@ import { IIconProps } from 'office-ui-fabric-react/lib/Icon';
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 
-import { IGlossary, IGlossaryItem } from '../types/glossary';
+import { IGlossary, IGlossaryItem, ISearchOptions } from '../types/glossary';
 import { Language } from '../models/Glossary';
 import { copyAndSortItems } from '../utils/helpers';
+import { Checkbox } from 'office-ui-fabric-react';
 
 export interface IGlossaryTableProps {
     glossary: IGlossary;
@@ -31,6 +32,8 @@ export interface IGlossaryTableProps {
 export interface IGlossaryTableState {
     items: IGlossaryItem[];
     columns: IColumn[];
+    showSearchOptions: boolean;
+    searchOptions: ISearchOptions;
 }
 
 const stackTokens: IStackTokens = {
@@ -74,8 +77,17 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
         this.state = {
             items: [],
-            columns: columns
+            columns: columns,
+            showSearchOptions: false,
+            searchOptions: {
+                caseSensitive: false,
+                wholeWord: false
+            }
         };
+
+        this._showSearchOptions = this._showSearchOptions.bind(this);
+        this._caseSensitivityChanged = this._caseSensitivityChanged.bind(this);
+        this._wholeWordChanged = this._wholeWordChanged.bind(this);
     }
 
     componentDidUpdate(prevProps: IGlossaryTableProps) {
@@ -109,9 +121,29 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
                 <Stack.Item align="center">
                     <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
                 </Stack.Item>
-                <Stack.Item align="stretch">
-                    <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} />
+                <Stack.Item>
+                    <Stack horizontal>
+                        <Stack.Item grow>
+                            <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} />
+                        </Stack.Item>
+                        <Stack.Item disableShrink>
+                            <IconButton iconProps={{ iconName: 'Settings' }}
+                                title="Advanced search options"
+                                ariaLabel="Advanced search options"
+                                onClick={this._showSearchOptions} />
+                        </Stack.Item>
+                    </Stack>
                 </Stack.Item>
+                {this.state.showSearchOptions &&
+                    <Stack horizontal horizontalAlign='center' tokens={stackTokens} {...stackProps}>
+                        <Stack.Item>
+                            <Checkbox label='Case sensitive' onChange={this._caseSensitivityChanged} />
+                        </Stack.Item>
+                        <Stack.Item>
+                            <Checkbox label='Whole word only' onChange={this._wholeWordChanged} />
+                        </Stack.Item>
+                    </Stack>
+                }
                 <Stack.Item align="stretch">
                     <DetailsList
                         items={items}
@@ -130,6 +162,30 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
                 </Stack.Item>
             </Stack>
         );
+    }
+
+    private _showSearchOptions() {
+        this.setState({
+            showSearchOptions: !this.state.showSearchOptions
+        })
+    }
+
+    private _caseSensitivityChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
+        let options = { ...this.state.searchOptions };
+        options.caseSensitive = isChecked;
+
+        this.setState({
+            searchOptions: options
+        });
+    }
+
+    private _wholeWordChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
+        let options = { ...this.state.searchOptions };
+        options.wholeWord = isChecked;
+
+        this.setState({
+            searchOptions: options
+        });
     }
 
     private _getLanguageColumn(lang: Language, isSource: boolean = false): IColumn {
@@ -168,9 +224,9 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         return item.key;
     }
 
-    private _onSearchTextChanged = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
+    private _onSearchTextChanged = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, keyword: string): void => {
         this.setState({
-            items: text ? this._allItems.filter(item => item.original.toLowerCase().indexOf(text.toLowerCase()) > -1) : this._allItems,
+            items: this.props.glossary.search(keyword, this.state.searchOptions),
         });
     };
 
