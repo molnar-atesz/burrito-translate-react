@@ -13,18 +13,24 @@ export interface IGlossaryItem {
   note?: string;
 }
 
+export interface ISearchOptions {
+  caseSensitive?: boolean;
+  wholeWord?: boolean;
+}
+
 export interface IGlossary {
   id: string;
   source: Language;
   target: Language;
   created: Date;
   items: IGlossaryItem[];
-  
+
   addItem(newItem: IGlossaryItem): void;
   addRange(items: IGlossaryItem[]): void;
   deleteItem(word: string): void;
   editItem(word: string, newTranslation: string, newNote?: string): void;
   clear(): void;
+  search(keyword: string, searchOptions?: ISearchOptions): IGlossaryItem[];
 }
 
 export interface IGlossaryStore {
