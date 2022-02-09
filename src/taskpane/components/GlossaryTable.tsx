@@ -49,23 +49,6 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     constructor(props) {
         super(props);
 
-        const columns: IColumn[] = [
-            this._getLanguageColumn(this.props.glossary.source, true),
-            this._getLanguageColumn(this.props.glossary.target),
-            {
-                key: 'noteCol',
-                name: 'Note',
-                fieldName: 'note',
-                minWidth: 50,
-                maxWidth: 50,
-                columnActionsMode: ColumnActionsMode.disabled,
-                isRowHeader: false,
-                isResizable: false,
-                data: 'string',
-                isCollapsible: true,
-            }
-        ];
-
         this._selection = new Selection({
             onSelectionChanged: async () => {
                 const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
@@ -77,7 +60,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
         this.state = {
             items: [],
-            columns: columns,
+            columns: this._getColumns(),
             showSearchOptions: false,
             searchOptions: {
                 caseSensitive: false,
@@ -186,6 +169,25 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         this.setState({
             searchOptions: options
         });
+    }
+
+    private _getColumns(): IColumn[] {
+        return [
+            this._getLanguageColumn(this.props.glossary.source, true),
+            this._getLanguageColumn(this.props.glossary.target),
+            {
+                key: 'noteCol',
+                name: 'Note',
+                fieldName: 'note',
+                minWidth: 50,
+                maxWidth: 50,
+                columnActionsMode: ColumnActionsMode.disabled,
+                isRowHeader: false,
+                isResizable: false,
+                data: 'string',
+                isCollapsible: true,
+            }
+        ];
     }
 
     private _getLanguageColumn(lang: Language, isSource: boolean = false): IColumn {
