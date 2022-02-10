@@ -4,106 +4,109 @@ import * as React from "react";
 import { ISearchOptions } from "../types/glossary";
 
 export interface ISearchProps {
-    onSearch(keyword: string, options: ISearchOptions): void;
+  onSearch(keyword: string, options: ISearchOptions): void;
 }
 
 export interface ISearchState {
-    keyword: string,
-    showSearchOptions: boolean;
-    searchOptions: ISearchOptions;
+  keyword: string;
+  showSearchOptions: boolean;
+  searchOptions: ISearchOptions;
 }
 
 export default class Search extends React.Component<ISearchProps, ISearchState> {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        this._showSearchOptions = this._showSearchOptions.bind(this);
-        this._caseSensitivityChanged = this._caseSensitivityChanged.bind(this);
-        this._wholeWordChanged = this._wholeWordChanged.bind(this);
+    this._showSearchOptions = this._showSearchOptions.bind(this);
+    this._caseSensitivityChanged = this._caseSensitivityChanged.bind(this);
+    this._wholeWordChanged = this._wholeWordChanged.bind(this);
 
-        this.state = {
-            keyword: "",
-            showSearchOptions: false,
-            searchOptions: {
-                caseSensitive: false,
-                wholeWord: false
-            }
-        }
-    }
-
-    render() {
-        const stackProps: IStackProps = {
-            root: {
-                style: {
-                    padding: '10px'
-                }
-            }
-        };
-        const stackTokens: IStackTokens = {
-            childrenGap: 5,
-        };
-
-        return (
-            <Stack tokens={{ childrenGap: 5 }} {...stackProps}>
-                <Stack.Item>
-                    <Stack horizontal>
-                        <Stack.Item grow>
-                            <SearchBox placeholder="Search"
-                                onChange={this._onSearchTextChanged}
-                                value={this.state.keyword} />
-                        </Stack.Item>
-                        <Stack.Item disableShrink>
-                            <IconButton iconProps={{ iconName: 'Settings' }}
-                                title="Advanced search options"
-                                ariaLabel="Advanced search options"
-                                onClick={this._showSearchOptions} />
-                        </Stack.Item>
-                    </Stack>
-                </Stack.Item>
-                {this.state.showSearchOptions &&
-                    <Stack horizontal horizontalAlign='center' tokens={stackTokens} {...stackProps}>
-                        <Stack.Item>
-                            <Checkbox label='Case sensitive' onChange={this._caseSensitivityChanged} />
-                        </Stack.Item>
-                        <Stack.Item>
-                            <Checkbox label='Whole word only' onChange={this._wholeWordChanged} />
-                        </Stack.Item>
-                    </Stack>
-                }
-            </Stack>
-        )
-    }
-
-    private _showSearchOptions() {
-        this.setState({
-            showSearchOptions: !this.state.showSearchOptions
-        })
-    }
-
-    private _caseSensitivityChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
-        let options = { ...this.state.searchOptions };
-        options.caseSensitive = isChecked;
-
-        this.setState({
-            searchOptions: options
-        });
-        this.props.onSearch(this.state.keyword, options);
-    }
-
-    private _wholeWordChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
-        let options = { ...this.state.searchOptions };
-        options.wholeWord = isChecked;
-
-        this.setState({
-            searchOptions: options
-        });
-        this.props.onSearch(this.state.keyword, options);
-    }
-
-    private _onSearchTextChanged = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, keyword: string): void => {
-        this.setState({
-            keyword: keyword
-        });
-        this.props.onSearch(keyword, this.state.searchOptions);
+    this.state = {
+      keyword: "",
+      showSearchOptions: false,
+      searchOptions: {
+        caseSensitive: false,
+        wholeWord: false
+      }
     };
+  }
+
+  render() {
+    const stackProps: IStackProps = {
+      root: {
+        style: {
+          padding: "10px"
+        }
+      }
+    };
+    const stackTokens: IStackTokens = {
+      childrenGap: 5
+    };
+
+    return (
+      <Stack tokens={{ childrenGap: 5 }} {...stackProps}>
+        <Stack.Item>
+          <Stack horizontal>
+            <Stack.Item grow>
+              <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} value={this.state.keyword} />
+            </Stack.Item>
+            <Stack.Item disableShrink>
+              <IconButton
+                iconProps={{ iconName: "Settings" }}
+                title="Advanced search options"
+                ariaLabel="Advanced search options"
+                onClick={this._showSearchOptions}
+              />
+            </Stack.Item>
+          </Stack>
+        </Stack.Item>
+        {this.state.showSearchOptions && (
+          <Stack horizontal horizontalAlign="center" tokens={stackTokens} {...stackProps}>
+            <Stack.Item>
+              <Checkbox label="Case sensitive" onChange={this._caseSensitivityChanged} />
+            </Stack.Item>
+            <Stack.Item>
+              <Checkbox label="Whole word only" onChange={this._wholeWordChanged} />
+            </Stack.Item>
+          </Stack>
+        )}
+      </Stack>
+    );
+  }
+
+  private _showSearchOptions() {
+    this.setState({
+      showSearchOptions: !this.state.showSearchOptions
+    });
+  }
+
+  private _caseSensitivityChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
+    let options = { ...this.state.searchOptions };
+    options.caseSensitive = isChecked;
+
+    this.setState({
+      searchOptions: options
+    });
+    this.props.onSearch(this.state.keyword, options);
+  }
+
+  private _wholeWordChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
+    let options = { ...this.state.searchOptions };
+    options.wholeWord = isChecked;
+
+    this.setState({
+      searchOptions: options
+    });
+    this.props.onSearch(this.state.keyword, options);
+  }
+
+  private _onSearchTextChanged = (
+    _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    keyword: string
+  ): void => {
+    this.setState({
+      keyword: keyword
+    });
+    this.props.onSearch(keyword, this.state.searchOptions);
+  };
 }

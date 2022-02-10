@@ -117,7 +117,7 @@ describe("Glossary", () => {
         { key: "a", original: "husk", translation: "dog", note: "no" },
         { key: "b", original: "test", translation: "teszt", note: "" },
         { key: "c", original: "word", translation: "szo" }
-      ]
+      ];
       glossary.addRange(items);
       expect(glossary.items).toContain(items[0]);
       expect(glossary.items).toContain(items[1]);
@@ -128,8 +128,8 @@ describe("Glossary", () => {
       const empty = { key: "c", original: "", translation: "szo" };
       const items: IGlossaryItem[] = [
         { key: "a", original: "husk", translation: "dog", note: "no" },
-        { key: "b", original: "test", translation: "teszt", note: "" },
-      ]
+        { key: "b", original: "test", translation: "teszt", note: "" }
+      ];
       items.push(empty);
 
       glossary.addRange(items);
@@ -153,7 +153,7 @@ describe("Glossary", () => {
         { key: "a", original: "husk", translation: "dog", note: "no" },
         { key: "b", original: "test", translation: "teszt", note: "" },
         { key: "c", original: "word", translation: "szo" }
-      ]
+      ];
       glossary.addRange(items);
     });
 
@@ -167,7 +167,7 @@ describe("Glossary", () => {
     });
   });
 
-  describe('search', () => {
+  describe("search", () => {
     let glossary: IGlossary;
     const english = new Language("English", "en", 1);
     const hungarian = new Language("Magyar", "hu", 2);
@@ -180,12 +180,12 @@ describe("Glossary", () => {
         { key: "3", original: "whole word", translation: "teljes szo" },
         { key: "4", original: "notwhole word", translation: "nemteljes szo" },
         { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
-        { key: "6", original: "NotWhole Sensitive", translation: "NemTeljes Érzékeny" },
-      ]
+        { key: "6", original: "NotWhole Sensitive", translation: "NemTeljes Érzékeny" }
+      ];
       glossary.addRange(items);
     });
 
-    test('should return all item if search expression is empty', () => {
+    test("should return all item if search expression is empty", () => {
       const searchExpression = "";
 
       const result = glossary.search(searchExpression);
@@ -193,7 +193,7 @@ describe("Glossary", () => {
       expect(result).toEqual(glossary.items);
     });
 
-    test('should return empty list if the search keyword not found', () => {
+    test("should return empty list if the search keyword not found", () => {
       const keyword = "there-is-no-such-word";
 
       const result = glossary.search(keyword);
@@ -201,33 +201,27 @@ describe("Glossary", () => {
       expect(result).toEqual([]);
     });
 
-    test('should find words in original case insensitively without option', () => {
+    test("should find words in original case insensitively without option", () => {
       const searchExpression = "non sensitive";
-      const expectedResult = [
-        { key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" }
-      ];
+      const expectedResult = [{ key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" }];
 
       const result = glossary.search(searchExpression);
 
       expect(result).toEqual(expectedResult);
     });
 
-    test('should find words in translation case insensitively without option', () => {
+    test("should find words in translation case insensitively without option", () => {
       const searchExpression = "nem érzékeny";
-      const expectedResult = [
-        { key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" }
-      ];
+      const expectedResult = [{ key: "2", original: "nOn sEnsItIve", translation: "nEm ÉrzÉkEny" }];
 
       const result = glossary.search(searchExpression);
 
       expect(result).toEqual(expectedResult);
     });
 
-    test('should find words in original case sensitively if search option set', () => {
+    test("should find words in original case sensitively if search option set", () => {
       const searchExpression = "SensitivE";
-      const matches = [
-        { key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" },
-      ];
+      const matches = [{ key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" }];
       const searchOptions = {
         caseSensitive: true
       };
@@ -237,25 +231,23 @@ describe("Glossary", () => {
       expect(result).toEqual(matches);
     });
 
-    test('should find words in translation case sensitively if search option set', () => {
+    test("should find words in translation case sensitively if search option set", () => {
       const searchExpression = "ÉrzékenY";
-      const expectedResult = [
-        { key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" }
-      ];
+      const expectedResult = [{ key: "1", original: "SensitivE", translation: "ÉrzékenY", note: "no" }];
       const searchOptions = {
         caseSensitive: true
-      }
+      };
 
       const result = glossary.search(searchExpression, searchOptions);
 
       expect(result).toEqual(expectedResult);
     });
 
-    test('should find only whole words in original case insensitively when options set', () => {
+    test("should find only whole words in original case insensitively when options set", () => {
       const searchExpression = "whole";
       const expectedResult = [
         { key: "3", original: "whole word", translation: "teljes szo" },
-        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" }
       ];
       const searchOptions = {
         wholeWord: true
@@ -266,11 +258,11 @@ describe("Glossary", () => {
       expect(result).toEqual(expectedResult);
     });
 
-    test('should find only whole words in translation case insensitively when options set', () => {
+    test("should find only whole words in translation case insensitively when options set", () => {
       const searchExpression = "teljes";
       const expectedResult = [
         { key: "3", original: "whole word", translation: "teljes szo" },
-        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
+        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" }
       ];
       const searchOptions = {
         wholeWord: true
@@ -281,11 +273,9 @@ describe("Glossary", () => {
       expect(result).toEqual(expectedResult);
     });
 
-    test('should find only case sensitive whole words in original when options set', () => {
+    test("should find only case sensitive whole words in original when options set", () => {
       const searchExpression = "Whole";
-      const expectedResult = [
-        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
-      ];
+      const expectedResult = [{ key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" }];
       const searchOptions = {
         caseSensitive: true,
         wholeWord: true
@@ -296,11 +286,9 @@ describe("Glossary", () => {
       expect(result).toEqual(expectedResult);
     });
 
-    test('should find only case sensitive whole words in translation when options set', () => {
+    test("should find only case sensitive whole words in translation when options set", () => {
       const searchExpression = "Teljes";
-      const expectedResult = [
-        { key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" },
-      ];
+      const expectedResult = [{ key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" }];
       const searchOptions = {
         caseSensitive: true,
         wholeWord: true
@@ -311,5 +299,4 @@ describe("Glossary", () => {
       expect(result).toEqual(expectedResult);
     });
   });
-
 });

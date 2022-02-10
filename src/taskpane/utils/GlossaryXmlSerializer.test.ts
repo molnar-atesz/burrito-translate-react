@@ -183,7 +183,8 @@ describe("serialize", () => {
     });
 
     test("should unescape xml default words", () => {
-      const xmlToDeserialize = "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='I&apos;m &lt;me&amp;myself&gt;' translation='az&quot;' note='megj&quot;' /></items></burritoMemory>";
+      const xmlToDeserialize =
+        "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='I&apos;m &lt;me&amp;myself&gt;' translation='az&quot;' note='megj&quot;' /></items></burritoMemory>";
 
       const res = serializer.deserialize(xmlToDeserialize);
       const item1: IGlossaryItem = { key: "1", original: "I'm <me&myself>", translation: 'az"', note: 'megj"' };

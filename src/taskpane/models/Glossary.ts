@@ -83,7 +83,7 @@ export class Glossary implements IGlossary {
       wholeWord: searchOptions?.wholeWord ?? false
     };
     const result = this.items.filter(item => {
-      let flags = searchOptions.caseSensitive ? 'gm' : 'gmi';
+      let flags = searchOptions.caseSensitive ? "gm" : "gmi";
       let pattern = searchOptions.wholeWord ? `\\b${keyword}\\b` : keyword;
       let regex = new RegExp(pattern, flags);
 
