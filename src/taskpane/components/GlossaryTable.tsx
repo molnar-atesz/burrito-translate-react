@@ -64,7 +64,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     componentDidUpdate(prevProps: Readonly<IGlossaryTableProps>): void {
         if (prevProps.items !== this.props.items) {
             this.setState({
-                items: this.props.items
+                items: [...this.props.items]
             });
         }
     }

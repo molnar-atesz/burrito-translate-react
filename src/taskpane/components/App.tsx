@@ -59,6 +59,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   private bindMethodsToThis() {
     this.addWord = this.addWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
+    this.clearNotification = this.clearNotification.bind(this);
     this.onSaveGlossary = this.onSaveGlossary.bind(this);
     this.loadGlossaryFromDoc = this.loadGlossaryFromDoc.bind(this);
     this.onEditMode = this.onEditMode.bind(this);
@@ -81,7 +82,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
       this.setState({
         edit: false,
         glossary: this.glossary.current,
-        itemsToShow: this.glossary.current.items
+        itemsToShow: [...this.glossary.current.items]
       });
       this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
         this.setNotification("Glossary updated", MessageBarType.success);
@@ -95,7 +96,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.glossary.current = new Glossary(source, target);
     this.setState({
       glossary: this.glossary.current,
-      itemsToShow: this.glossary.current.items
+      itemsToShow: [...this.glossary.current.items]
     });
   }
 
@@ -106,6 +107,10 @@ export default class App extends React.Component<IAppProps, IAppState> {
         messageBarType: !messageType ? MessageBarType.info : messageType
       }
     });
+  }
+
+  clearNotification(): void {
+    this.setNotification(undefined);
   }
 
   onSaveGlossary(): boolean {
@@ -241,7 +246,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
             <MessageBar
               messageBarType={this.state.notification.messageBarType}
               isMultiline={true}
-              onDismiss={() => this.setNotification(undefined)}
+              onDismiss={this.clearNotification}
               dismissButtonAriaLabel="Close"
             >
               {this.state.notification.message}
