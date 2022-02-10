@@ -5,7 +5,7 @@ import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 
-import { IGlossary, IGlossaryItem, IGlossaryStore, IGlossaryXmlSerializer, INotification } from "../types/glossary";
+import { IGlossary, IGlossaryItem, IGlossaryStore, IGlossaryXmlSerializer, INotification, ISearchOptions } from "../types/glossary";
 import CustomXmlStorageService from "../services/CustomXmlStorageService";
 import { Glossary, Language } from "../models/Glossary";
 import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
@@ -16,6 +16,7 @@ import NewItem from "./NewItem";
 import GlossaryTable from "./GlossaryTable";
 import NewGlossary from "./NewGlossary";
 import ImportCsv from "./ImportCsv";
+import Search from "./Search";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -26,6 +27,7 @@ export interface IAppState {
   notification: INotification;
   edit: boolean;
   import: boolean;
+  itemsToShow: IGlossaryItem[];
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
@@ -44,7 +46,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
         messageBarType: MessageBarType.info
       },
       edit: false,
-      import: false
+      import: false,
+      itemsToShow: []
     };
 
     this.serializer = new GlossaryXmlSerializer(XMLNS);
@@ -62,6 +65,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
     this.onImport = this.onImport.bind(this);
     this.onImported = this.onImported.bind(this);
+    this.search = this.search.bind(this);
   }
 
   onEditMode(): boolean {
@@ -76,8 +80,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
       this.glossary.current.addItem(word);
       this.setState({
         edit: false,
-        glossary: this.glossary.current
-
+        glossary: this.glossary.current,
+        itemsToShow: this.glossary.current.items
       });
       this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
         this.setNotification("Glossary updated", MessageBarType.success);
@@ -90,7 +94,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
   onCreateGlossary(source: Language, target: Language) {
     this.glossary.current = new Glossary(source, target);
     this.setState({
-      glossary: this.glossary.current
+      glossary: this.glossary.current,
+      itemsToShow: this.glossary.current.items
     });
   }
 
@@ -116,26 +121,34 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  loadGlossaryFromDoc(): boolean {
+  loadGlossaryFromDoc(): void {
     this.glossaryStore.loadAsync().then(loadedGlossary => {
       this.glossary.current = loadedGlossary;
       this.setState({
         glossary: this.glossary.current,
+        itemsToShow: this.glossary.current.items,
         notification: {
           message: "Loaded successfully",
           messageBarType: MessageBarType.success
         }
       });
-    });
-
-    return true;
+    })
+      .catch((reason) => {
+        this.setState({
+          notification: {
+            message: reason,
+            messageBarType: MessageBarType.error
+          }
+        });
+      });
   }
 
   onImported(items: IGlossaryItem[]) {
     this.glossary.current.addRange(items);
     this.setState({
       import: false,
-      glossary: this.glossary.current
+      glossary: this.glossary.current,
+      itemsToShow: this.glossary.current.items
     });
     this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
       this.setNotification("Glossary updated", MessageBarType.success);
@@ -147,6 +160,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
       import: !this.state.import
     });
     return true;
+  }
+
+  search(keyword: string, options: ISearchOptions): void {
+    const filteredList = this.glossary.current.search(keyword, options);
+    this.setState({
+      itemsToShow: filteredList
+    });
   }
 
   componentDidMount() {
@@ -197,7 +217,21 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
           <Stack.Item align="stretch">
             {this.state.glossary && (
-              <GlossaryTable glossary={this.state.glossary} notify={this.setNotification}></GlossaryTable>
+              <Stack>
+                <Stack.Item align="center">
+                  <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
+                </Stack.Item>
+                <Stack.Item align="stretch">
+                  <Search onSearch={this.search}></Search>
+                </Stack.Item>
+                <Stack.Item align="stretch">
+                  <GlossaryTable source={this.state.glossary.source.name}
+                    target={this.state.glossary.target.name}
+                    items={this.state.itemsToShow}
+                    notify={this.setNotification}>
+                  </GlossaryTable>
+                </Stack.Item>
+              </Stack>
             )}
           </Stack.Item>
         </Stack>
