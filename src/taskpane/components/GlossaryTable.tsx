@@ -1,4 +1,3 @@
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import {
     DetailsList,
     DetailsListLayoutMode,
@@ -19,21 +18,20 @@ import { IIconProps } from 'office-ui-fabric-react/lib/Icon';
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 import { getTheme } from 'office-ui-fabric-react/lib/Styling';
 
-import { IGlossary, IGlossaryItem, ISearchOptions } from '../types/glossary';
-import { Language } from '../models/Glossary';
+import { IGlossaryItem } from '../types/glossary';
 import { copyAndSortItems } from '../utils/helpers';
-import { Checkbox } from 'office-ui-fabric-react';
 
 export interface IGlossaryTableProps {
-    glossary: IGlossary;
-    notify: (message: string, messageType?: MessageBarType) => any
+    source: string;
+    target: string;
+    items: IGlossaryItem[];
+    onRowClick(item: IGlossaryItem): Promise<any>;
+    notify(message: string, messageType?: MessageBarType): any;
 }
 
 export interface IGlossaryTableState {
     items: IGlossaryItem[];
     columns: IColumn[];
-    showSearchOptions: boolean;
-    searchOptions: ISearchOptions;
 }
 
 const stackTokens: IStackTokens = {
@@ -49,27 +47,10 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     constructor(props) {
         super(props);
 
-        const columns: IColumn[] = [
-            this._getLanguageColumn(this.props.glossary.source, true),
-            this._getLanguageColumn(this.props.glossary.target),
-            {
-                key: 'noteCol',
-                name: 'Note',
-                fieldName: 'note',
-                minWidth: 50,
-                maxWidth: 50,
-                columnActionsMode: ColumnActionsMode.disabled,
-                isRowHeader: false,
-                isResizable: false,
-                data: 'string',
-                isCollapsible: true,
-            }
-        ];
-
         this._selection = new Selection({
             onSelectionChanged: async () => {
                 const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
-                await this._insertWord(selectionDetails);
+                await this.props.onRowClick(selectionDetails);
                 this._selection.toggleAllSelected();
             },
             selectionMode: SelectionMode.single
@@ -77,30 +58,20 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
         this.state = {
             items: [],
-            columns: columns,
-            showSearchOptions: false,
-            searchOptions: {
-                caseSensitive: false,
-                wholeWord: false
-            }
+            columns: this._getColumns()
         };
-
-        this._showSearchOptions = this._showSearchOptions.bind(this);
-        this._caseSensitivityChanged = this._caseSensitivityChanged.bind(this);
-        this._wholeWordChanged = this._wholeWordChanged.bind(this);
     }
 
-    componentDidUpdate(prevProps: IGlossaryTableProps) {
-        if (prevProps.glossary !== this.props.glossary) {
-            this._allItems = this.props.glossary.items;
+    componentDidUpdate(prevProps: Readonly<IGlossaryTableProps>): void {
+        if (prevProps.items !== this.props.items) {
             this.setState({
-                items: [...this._allItems]
+                items: [...this.props.items]
             });
         }
     }
 
     componentDidMount() {
-        this._allItems = this.props.glossary.items;
+        this._allItems = this.props.items;
         this.setState({
             items: [...this._allItems]
         });
@@ -118,32 +89,6 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
         return (
             <Stack tokens={stackTokens} {...stackProps}>
-                <Stack.Item align="center">
-                    <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
-                </Stack.Item>
-                <Stack.Item>
-                    <Stack horizontal>
-                        <Stack.Item grow>
-                            <SearchBox placeholder="Search" onChange={this._onSearchTextChanged} />
-                        </Stack.Item>
-                        <Stack.Item disableShrink>
-                            <IconButton iconProps={{ iconName: 'Settings' }}
-                                title="Advanced search options"
-                                ariaLabel="Advanced search options"
-                                onClick={this._showSearchOptions} />
-                        </Stack.Item>
-                    </Stack>
-                </Stack.Item>
-                {this.state.showSearchOptions &&
-                    <Stack horizontal horizontalAlign='center' tokens={stackTokens} {...stackProps}>
-                        <Stack.Item>
-                            <Checkbox label='Case sensitive' onChange={this._caseSensitivityChanged} />
-                        </Stack.Item>
-                        <Stack.Item>
-                            <Checkbox label='Whole word only' onChange={this._wholeWordChanged} />
-                        </Stack.Item>
-                    </Stack>
-                }
                 <Stack.Item align="stretch">
                     <DetailsList
                         items={items}
@@ -152,7 +97,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
                         compact={true}
                         setKey="none"
                         selection={this._selection}
-                        layoutMode={DetailsListLayoutMode.justified}
+                        layoutMode={DetailsListLayoutMode.fixedColumns}
                         checkboxVisibility={CheckboxVisibility.hidden}
                         selectionPreservedOnEmptyClick={false}
                         isHeaderVisible={true}
@@ -164,71 +109,48 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         );
     }
 
-    private _showSearchOptions() {
-        this.setState({
-            showSearchOptions: !this.state.showSearchOptions
-        })
+    private _getColumns(): IColumn[] {
+        return [
+            this._getLanguageColumn(this.props.source, true),
+            this._getLanguageColumn(this.props.target),
+            {
+                key: 'noteCol',
+                name: 'Note',
+                fieldName: 'note',
+                minWidth: 40,
+                maxWidth: 40,
+                columnActionsMode: ColumnActionsMode.disabled,
+                isRowHeader: false,
+                isResizable: false,
+                data: 'string',
+                isCollapsible: true,
+            }
+        ];
     }
 
-    private _caseSensitivityChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
-        let options = { ...this.state.searchOptions };
-        options.caseSensitive = isChecked;
-
-        this.setState({
-            searchOptions: options
-        });
-    }
-
-    private _wholeWordChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
-        let options = { ...this.state.searchOptions };
-        options.wholeWord = isChecked;
-
-        this.setState({
-            searchOptions: options
-        });
-    }
-
-    private _getLanguageColumn(lang: Language, isSource: boolean = false): IColumn {
+    private _getLanguageColumn(lang: string, isSource: boolean = false): IColumn {
         const headerPrefix = isSource ? 'From' : 'To';
-        const columnHeader = `${headerPrefix} (${lang.name})`;
+        const columnHeader = `${headerPrefix} (${lang})`;
         const fieldName = isSource ? 'original' : 'translation';
 
         return {
             key: `${headerPrefix}Col`,
             name: columnHeader,
             fieldName: fieldName,
-            minWidth: 50,
-            maxWidth: 80,
+            minWidth: 100,
             isMultiline: true,
             isResizable: true,
+            isFiltered: true,
             sortAscendingAriaLabel: 'Sort A..Z',
             sortDescendingAriaLabel: 'Sort Z..A',
             onColumnClick: this._onOrderByColumn,
-            data: 'string',
-            isPadded: true
+            data: 'string'
         };
-    }
-
-    private async _insertWord(item: IGlossaryItem) {
-        await Word.run(async (context) => {
-            Office.context.document.setSelectedDataAsync(item.translation, asyncResult => {
-                if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-                    this.props.notify("Insertion failed", MessageBarType.error);
-                }
-            });
-            await context.sync();
-        });
     }
 
     private _getKey(item: any, _?: number): string {
         return item.key;
     }
-
-    private _onSearchTextChanged = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, keyword: string): void => {
-        this.setState({
-            items: this.props.glossary.search(keyword, this.state.searchOptions),
-        });
-    };
 
     private _onOrderByColumn = (_: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
