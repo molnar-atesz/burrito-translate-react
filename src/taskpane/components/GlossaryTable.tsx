@@ -25,7 +25,8 @@ export interface IGlossaryTableProps {
     source: string;
     target: string;
     items: IGlossaryItem[];
-    notify: (message: string, messageType?: MessageBarType) => any
+    onRowClick(item: IGlossaryItem): Promise<any>;
+    notify(message: string, messageType?: MessageBarType): any;
 }
 
 export interface IGlossaryTableState {
@@ -49,7 +50,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         this._selection = new Selection({
             onSelectionChanged: async () => {
                 const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
-                await this._insertWord(selectionDetails);
+                await this.props.onRowClick(selectionDetails);
                 this._selection.toggleAllSelected();
             },
             selectionMode: SelectionMode.single
@@ -146,17 +147,6 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
             data: 'string',
             isPadded: true
         };
-    }
-
-    private async _insertWord(item: IGlossaryItem) {
-        await Word.run(async (context) => {
-            Office.context.document.setSelectedDataAsync(item.translation, asyncResult => {
-                if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-                    this.props.notify("Insertion failed", MessageBarType.error);
-                }
-            });
-            await context.sync();
-        });
     }
 
     private _getKey(item: any, _?: number): string {

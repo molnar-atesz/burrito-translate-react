@@ -17,6 +17,7 @@ import GlossaryTable from "./GlossaryTable";
 import NewGlossary from "./NewGlossary";
 import ImportCsv from "./ImportCsv";
 import Search from "./Search";
+import DocumentService from "../services/DocumentService";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -33,6 +34,7 @@ export interface IAppState {
 export default class App extends React.Component<IAppProps, IAppState> {
   private readonly glossaryStore: IGlossaryStore;
   private readonly serializer: IGlossaryXmlSerializer;
+  private readonly documentService: DocumentService;
   private glossary: React.MutableRefObject<IGlossary>;
 
   constructor(props) {
@@ -52,12 +54,14 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     this.serializer = new GlossaryXmlSerializer(XMLNS);
     this.glossaryStore = new CustomXmlStorageService(this.serializer);
+    this.documentService = new DocumentService();
 
     this.bindMethodsToThis();
   }
 
   private bindMethodsToThis() {
     this.addWord = this.addWord.bind(this);
+    this.insertWord = this.insertWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.clearNotification = this.clearNotification.bind(this);
     this.onSaveGlossary = this.onSaveGlossary.bind(this);
@@ -167,6 +171,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
+  async insertWord(item: IGlossaryItem) {
+    const success = await this.documentService.insertText(item.translation);
+    if (!success) {
+      this.setNotification("Insertion failed", MessageBarType.error);
+    }
+  }
+
   search(keyword: string, options: ISearchOptions): void {
     const filteredList = this.glossary.current.search(keyword, options);
     this.setState({
@@ -233,6 +244,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
                   <GlossaryTable source={this.state.glossary.source.name}
                     target={this.state.glossary.target.name}
                     items={this.state.itemsToShow}
+                    onRowClick={this.insertWord}
                     notify={this.setNotification}>
                   </GlossaryTable>
                 </Stack.Item>
