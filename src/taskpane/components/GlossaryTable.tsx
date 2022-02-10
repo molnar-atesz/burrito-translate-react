@@ -97,7 +97,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
                         compact={true}
                         setKey="none"
                         selection={this._selection}
-                        layoutMode={DetailsListLayoutMode.justified}
+                        layoutMode={DetailsListLayoutMode.fixedColumns}
                         checkboxVisibility={CheckboxVisibility.hidden}
                         selectionPreservedOnEmptyClick={false}
                         isHeaderVisible={true}
@@ -117,8 +117,8 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
                 key: 'noteCol',
                 name: 'Note',
                 fieldName: 'note',
-                minWidth: 50,
-                maxWidth: 50,
+                minWidth: 40,
+                maxWidth: 40,
                 columnActionsMode: ColumnActionsMode.disabled,
                 isRowHeader: false,
                 isResizable: false,
@@ -137,15 +137,14 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
             key: `${headerPrefix}Col`,
             name: columnHeader,
             fieldName: fieldName,
-            minWidth: 50,
-            maxWidth: 80,
+            minWidth: 100,
             isMultiline: true,
             isResizable: true,
+            isFiltered: true,
             sortAscendingAriaLabel: 'Sort A..Z',
             sortDescendingAriaLabel: 'Sort Z..A',
             onColumnClick: this._onOrderByColumn,
-            data: 'string',
-            isPadded: true
+            data: 'string'
         };
     }
 
