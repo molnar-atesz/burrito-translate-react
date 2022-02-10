@@ -21,7 +21,7 @@
     "build-dev": "webpack --mode development --https false && echo . && echo . && echo . && echo Please use 'build:dev' instead of 'build-dev'.",
     "dev-server": "webpack-dev-server --mode development",
     "test": "jest --runInBand",
-    "test-watch": "jest --watchAll --runInBand",
+    "test:watch": "jest --watchAll --runInBand",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
     "prettier": "office-addin-lint prettier",
