@@ -47,7 +47,13 @@ export default class AddEdit extends React.Component<IAddEditProps, IGlossaryIte
   public render() {
     return (
       <Stack verticalAlign="stretch" tokens={VERTICAL_STACK_TOKENS}>
-        <TextField label="Word" name="original" value={this.state.original} onChange={this._onInputChange} disabled={!!this.props.item} />
+        <TextField
+          label="Word"
+          name="original"
+          value={this.state.original}
+          onChange={this._onInputChange}
+          disabled={!!this.props.item}
+        />
         <TextField
           label="Translation"
           name="translation"

@@ -258,7 +258,12 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
           {!!this.state.showItemForm && (
             <Stack.Item align="center">
-              <AddEdit onSubmit={this.onItemFormSubmit} onCancel={this.onItemFormCancel} notify={this.setNotification} item={this.state.selectedItem}></AddEdit>
+              <AddEdit
+                onSubmit={this.onItemFormSubmit}
+                onCancel={this.onItemFormCancel}
+                notify={this.setNotification}
+                item={this.state.selectedItem}
+              ></AddEdit>
             </Stack.Item>
           )}
 

@@ -211,12 +211,15 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       );
     } else if (column.fieldName === "command") {
       return (
-        <IconButton iconProps={{ iconName: "Edit" }} data-selection-disabled onClick={(_) => {
-          this.props.onEditRow(item);
-        }} />
+        <IconButton
+          iconProps={{ iconName: "Edit" }}
+          data-selection-disabled
+          onClick={_ => {
+            this.props.onEditRow(item);
+          }}
+        />
       );
-    }
-    else {
+    } else {
       return <span>{fieldContent}</span>;
     }
   };
