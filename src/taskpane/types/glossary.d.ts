@@ -1,5 +1,5 @@
 import { MessageBarType } from "office-ui-fabric-react";
-import { Language } from "../models/Glossary";
+import { Language } from "../models/Language";
 
 export interface INotification {
   message: string;

@@ -1,5 +1,6 @@
 import { IGlossary, IGlossaryItem } from "../types/glossary";
-import { Glossary, Language } from "./Glossary";
+import { Glossary } from "./Glossary";
+import { Language } from "./Language";
 
 describe("Glossary", () => {
   describe("constructor", () => {

@@ -3,7 +3,7 @@ import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
 import { Dropdown, IDropdownOption, IDropdownStyles } from "office-ui-fabric-react/lib/Dropdown";
 import * as React from "react";
 
-import { Language } from "../models/Glossary";
+import { Language } from "../models/Language";
 import { LANGUAGES, VERTICAL_STACK_TOKENS } from "../utils/constants";
 
 export interface INewGlossaryProps {

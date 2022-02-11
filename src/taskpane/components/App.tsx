@@ -14,7 +14,8 @@ import {
   ISearchOptions
 } from "../types/glossary";
 import CustomXmlStorageService from "../services/CustomXmlStorageService";
-import { Glossary, Language } from "../models/Glossary";
+import { Glossary } from "../models/Glossary";
+import { Language } from "../models/Language";
 import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
 import { XMLNS } from "../utils/constants";
 

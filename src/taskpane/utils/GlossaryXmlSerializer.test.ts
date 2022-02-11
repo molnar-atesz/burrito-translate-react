@@ -1,4 +1,5 @@
-import { Glossary, Language } from "../models/Glossary";
+import { Glossary } from "../models/Glossary";
+import { Language } from "../models/Language";
 import { IGlossary, IGlossaryItem, IGlossaryXmlSerializer } from "../types/glossary";
 import { XMLNS } from "./constants";
 import GlossaryXmlSerializer from "./GlossaryXmlSerializer";
@@ -79,7 +80,7 @@ describe("serialize", () => {
   test("should add all items inside a <items> node", () => {
     const item1: IGlossaryItem = { key: "1", original: "the", translation: "az", note: "megj" };
     const item2: IGlossaryItem = { key: "2", original: "one", translation: "egy" };
-    glossary.items.push(item1, item2);
+    glossary.addRange([item1, item2]);
 
     const res = serializer.serialize(glossary);
 
@@ -95,7 +96,7 @@ describe("serialize", () => {
 
     test("should escape '&' sign", () => {
       const item1: IGlossaryItem = { key: "1", original: "the'", translation: "az'", note: "megj'" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -106,7 +107,7 @@ describe("serialize", () => {
 
     test("should escape '<' sign", () => {
       const item1: IGlossaryItem = { key: "1", original: "the<", translation: "az<", note: "megj<" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -117,7 +118,7 @@ describe("serialize", () => {
 
     test("should escape '>' sign", () => {
       const item1: IGlossaryItem = { key: "1", original: "the>", translation: "az>", note: "megj>" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -128,7 +129,7 @@ describe("serialize", () => {
 
     test("should escape '&' sign", () => {
       const item1: IGlossaryItem = { key: "1", original: "&the", translation: "&az", note: "&megj" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -139,7 +140,7 @@ describe("serialize", () => {
 
     test("should escape '\"' sign", () => {
       const item1: IGlossaryItem = { key: "1", original: '"the"', translation: 'az"', note: 'megj"' };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 

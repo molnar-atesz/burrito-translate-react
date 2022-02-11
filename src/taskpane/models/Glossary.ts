@@ -1,38 +1,47 @@
 import { IGlossary, IGlossaryItem, ISearchOptions } from "../types/glossary";
-
-export class Language {
-  name: string;
-  abbreviation: string;
-  order: number;
-
-  constructor(name: string, abbreviation: string, order: number) {
-    this.name = name;
-    this.abbreviation = abbreviation;
-    this.order = order;
-  }
-}
+import { Language } from "./Language";
 
 export class Glossary implements IGlossary {
-  id: string;
-  source: Language;
-  target: Language;
-  created: Date;
-  items: IGlossaryItem[];
+  private _id: string;
+  private _source: Language;
+  private _target: Language;
+  private _created: Date;
+  private _items: IGlossaryItem[];
 
   constructor(source: Language, target: Language, created?: Date) {
-    this.id = `${source.abbreviation}-${target.abbreviation}`;
-    this.source = source;
-    this.target = target;
-    this.created = !!created ? created : new Date();
-    this.items = [];
+    this._id = `${source.abbreviation}-${target.abbreviation}`;
+    this._source = source;
+    this._target = target;
+    this._created = !!created ? created : new Date();
+    this._items = [];
   }
 
-  deleteItem(word: string) {
-    let delIndex = this.items.findIndex(item => item.original === word);
-    this.items.splice(delIndex, 1);
+  public get id(): string {
+    return this._id;
   }
 
-  addItem(newItem: IGlossaryItem) {
+  public get source(): Language {
+    return this._source;
+  }
+
+  public get target(): Language {
+    return this._target;
+  }
+
+  public get created(): Date {
+    return this._created;
+  }
+
+  public get items() {
+    return [...this._items];
+  }
+
+  public deleteItem(word: string) {
+    let delIndex = this._items.findIndex(item => item.original === word);
+    this._items.splice(delIndex, 1);
+  }
+
+  public addItem(newItem: IGlossaryItem) {
     if (!newItem) {
       throw new Error("Item should not be empty!");
     }
@@ -41,11 +50,11 @@ export class Glossary implements IGlossary {
       throw new Error("Original word should not be empty!");
     }
 
-    newItem.key = (this.items.length + 1).toString();
-    this.items.push(newItem);
+    newItem.key = (this._items.length + 1).toString();
+    this._items.push(newItem);
   }
 
-  addRange(newItems: IGlossaryItem[]) {
+  public addRange(newItems: IGlossaryItem[]) {
     if (!newItems) {
       throw new Error("Invalid argument: 'newItems' is required");
     }
@@ -59,12 +68,12 @@ export class Glossary implements IGlossary {
     });
   }
 
-  editItem(word: string, newTranslation: string, newNote?: string) {
+  public editItem(word: string, newTranslation: string, newNote?: string) {
     if (!newTranslation) {
       throw new Error("Invalid argument: 'newTranslation' is required");
     }
 
-    let item = this.items.find(it => it.original === word);
+    let item = this._items.find(it => it.original === word);
     if (!item) {
       throw new Error(`Invalid argument: '${word}' is not an existing word`);
     }
@@ -73,16 +82,16 @@ export class Glossary implements IGlossary {
     item.note = newNote;
   }
 
-  clear(): void {
-    this.items.length = 0;
+  public clear(): void {
+    this._items.length = 0;
   }
 
-  search(keyword: string, searchOptions?: ISearchOptions): IGlossaryItem[] {
+  public search(keyword: string, searchOptions?: ISearchOptions): IGlossaryItem[] {
     searchOptions = {
       caseSensitive: searchOptions?.caseSensitive ?? false,
       wholeWord: searchOptions?.wholeWord ?? false
     };
-    const result = this.items.filter(item => {
+    const result = this._items.filter(item => {
       let flags = searchOptions.caseSensitive ? "gm" : "gmi";
       let pattern = searchOptions.wholeWord ? `\\b${keyword}\\b` : keyword;
       let regex = new RegExp(pattern, flags);
