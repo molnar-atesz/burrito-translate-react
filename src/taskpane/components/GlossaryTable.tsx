@@ -26,6 +26,7 @@ export interface IGlossaryTableProps {
   target: string;
   items: IGlossaryItem[];
   onRowClick(item: IGlossaryItem): Promise<any>;
+  onEditRow(item: IGlossaryItem): void;
   notify(message: string, messageType?: MessageBarType): any;
 }
 
@@ -102,7 +103,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
             selectionPreservedOnEmptyClick={false}
             isHeaderVisible={true}
             onRenderRow={this._onRenderRow}
-            onRenderItemColumn={this._renderItemColumn}
+            onRenderItemColumn={this._onRenderItemColumn}
           />
         </Stack.Item>
       </Stack>
@@ -115,12 +116,22 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       this._getLanguageColumn(this.props.target),
       {
         key: "noteCol",
-        name: "Note",
+        name: "",
         fieldName: "note",
         minWidth: 40,
         maxWidth: 40,
         columnActionsMode: ColumnActionsMode.disabled,
-        isRowHeader: false,
+        isResizable: false,
+        data: "string",
+        isCollapsible: true
+      },
+      {
+        key: "commandCol",
+        name: "",
+        fieldName: "command",
+        minWidth: 40,
+        maxWidth: 40,
+        columnActionsMode: ColumnActionsMode.disabled,
         isResizable: false,
         data: "string",
         isCollapsible: true
@@ -186,7 +197,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     return null;
   };
 
-  private _renderItemColumn = (item: IGlossaryItem, index: number, column: IColumn) => {
+  private _onRenderItemColumn = (item: IGlossaryItem, index: number, column: IColumn) => {
     const fieldContent = item[column.fieldName as keyof IGlossaryItem] as string;
     const commentIcon: IIconProps = { iconName: "Comment" };
     const tooltipId = `note${index}`;
@@ -198,7 +209,14 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
           <IconButton iconProps={commentIcon} aria-describedby={tooltipId} data-selection-disabled={true} />
         </TooltipHost>
       );
-    } else {
+    } else if (column.fieldName === "command") {
+      return (
+        <IconButton iconProps={{ iconName: "Edit" }} data-selection-disabled onClick={(_) => {
+          this.props.onEditRow(item);
+        }} />
+      );
+    }
+    else {
       return <span>{fieldContent}</span>;
     }
   };
