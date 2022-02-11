@@ -2,17 +2,15 @@ module.exports = {
   roots: ["<rootDir>/src"],
   testMatch: [
     "**/__tests__/**/*.+(ts|tsx|js)",
-    "**/?(*.)+(spec|test).+(ts|tsx|js)"
+    "**/?(*.)+(spec|test).+(ts|tsx|js)",
+    "!**/__fixtures__/**"
   ],
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
   testPathIgnorePatterns: [
-    "**/__fixtures__/**/*.+(ts|tsx|js)",
-    "/__utils__/**/*.+(ts|tsx|js)"
-  ],
-  setupFiles: [
-    "**/__fixtures__/**/*.+(ts|tsx|js)"
+    "<rootDir>/node_modules/",
+    "<rootDir>/dist"
   ],
   testEnvironment: "jsdom",
   verbose: true
