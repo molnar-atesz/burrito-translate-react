@@ -182,23 +182,18 @@ export default class App extends React.Component<IAppProps, IAppState> {
         this.setNotification("Loaded successfully", MessageBarType.success);
       })
       .catch(reason => {
-        this.setState({
-          notification: {
-            message: reason,
-            messageBarType: MessageBarType.error
-          }
-        });
+        this.setNotification(reason, MessageBarType.info);
       });
   }
 
-  onImported(items: IGlossaryItem[]) {
+  async onImported(items: IGlossaryItem[]) {
     this.glossary.current.addRange(items);
+    await this.glossaryStore.saveAsync(this.glossary.current);
+
+    this.setNotification("Glossary updated", MessageBarType.success);
+    this.refreshGlossaryState();
     this.setState({
       import: false
-    });
-    this.refreshGlossaryState();
-    this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
-      this.setNotification("Glossary updated", MessageBarType.success);
     });
   }
 

@@ -21,7 +21,7 @@ export default class ImportCsv extends React.Component<IImportCsvProps, any> {
     this._handleOnError = this._handleOnError.bind(this);
   }
 
-  private _handleOnDrop(data: any[]) {
+  private async _handleOnDrop(data: any[]) {
     const items: IGlossaryItem[] = data.map(item => {
       return {
         original: item.data[0],
@@ -29,7 +29,7 @@ export default class ImportCsv extends React.Component<IImportCsvProps, any> {
         note: item.data[2]
       };
     });
-    this.props.onImported(items);
+    await this.props.onImported(items);
   }
 
   private _handleOnError(err, file) {
