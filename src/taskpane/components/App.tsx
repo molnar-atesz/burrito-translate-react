@@ -20,7 +20,7 @@ import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
 import { XMLNS } from "../utils/constants";
 
 import ControlPanel from "./ControlPanel";
-import NewItem from "./NewItem";
+import AddEdit from "./AddEdit";
 import GlossaryTable from "./GlossaryTable";
 import NewGlossary from "./NewGlossary";
 import ImportCsv from "./ImportCsv";
@@ -31,10 +31,17 @@ export interface IAppProps {
   isOfficeInitialized: boolean;
 }
 
+export enum ItemFormMode {
+  edit,
+  create
+}
+
 export interface IAppState {
   glossary?: IGlossary;
   notification: INotification;
-  edit: boolean;
+  showItemForm: boolean;
+  itemFormMode: ItemFormMode;
+  selectedItem: IGlossaryItem;
   import: boolean;
   itemsToShow: IGlossaryItem[];
 }
@@ -55,7 +62,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
         message: "",
         messageBarType: MessageBarType.info
       },
-      edit: false,
+      showItemForm: false,
+      itemFormMode: ItemFormMode.create,
+      selectedItem: null,
       import: false,
       itemsToShow: []
     };
@@ -68,48 +77,71 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   private bindMethodsToThis() {
-    this.addWord = this.addWord.bind(this);
+    this.onItemFormSubmit = this.onItemFormSubmit.bind(this);
+    this.onItemFormCancel = this.onItemFormCancel.bind(this);
+    this.onEditWord = this.onEditWord.bind(this);
     this.insertWord = this.insertWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.clearNotification = this.clearNotification.bind(this);
     this.onSaveGlossary = this.onSaveGlossary.bind(this);
     this.loadGlossaryFromDoc = this.loadGlossaryFromDoc.bind(this);
-    this.onEditMode = this.onEditMode.bind(this);
+    this.onNewItem = this.onNewItem.bind(this);
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
     this.onImport = this.onImport.bind(this);
     this.onImported = this.onImported.bind(this);
     this.search = this.search.bind(this);
   }
 
-  onEditMode(): boolean {
+  onNewItem(): boolean {
     this.setState({
-      edit: !this.state.edit
+      selectedItem: null,
+      showItemForm: !this.state.showItemForm,
+      itemFormMode: ItemFormMode.create
     });
     return true;
   }
 
-  addWord(word: IGlossaryItem) {
-    try {
-      this.glossary.current.addItem(word);
-      this.setState({
-        edit: false,
-        glossary: this.glossary.current,
-        itemsToShow: [...this.glossary.current.items]
-      });
-      this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
-        this.setNotification("Glossary updated", MessageBarType.success);
-      });
-    } catch (error) {
-      this.setNotification(error.message, MessageBarType.error);
+  onEditWord(item: IGlossaryItem): void {
+    this.setState({
+      selectedItem: item,
+      showItemForm: true,
+      itemFormMode: ItemFormMode.edit
+    });
+  }
+
+  onItemFormCancel(): void {
+    this.setState({
+      selectedItem: null,
+      showItemForm: false,
+      itemFormMode: ItemFormMode.create
+    });
+  }
+
+  onItemFormSubmit(word: IGlossaryItem): void {
+    switch (this.state.itemFormMode) {
+      case ItemFormMode.create:
+        this.glossary.current.addItem(word);
+        break;
+      case ItemFormMode.edit:
+        this.glossary.current.editItem(word.original, word.translation, word.note);
+        break;
+      default:
+        break;
     }
+    this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
+      this.setNotification("Glossary updated", MessageBarType.success);
+    });
+    this.setState({
+      showItemForm: false,
+      itemFormMode: ItemFormMode.create,
+      glossary: this.glossary.current,
+      itemsToShow: [...this.glossary.current.items]
+    });
   }
 
   onCreateGlossary(source: Language, target: Language) {
     this.glossary.current = new Glossary(source, target);
-    this.setState({
-      glossary: this.glossary.current,
-      itemsToShow: [...this.glossary.current.items]
-    });
+    this.refreshGlossaryState();
   }
 
   setNotification(message: string, messageType?: MessageBarType) {
@@ -119,6 +151,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
         messageBarType: !messageType ? MessageBarType.info : messageType
       }
     });
+    if (!!message) {
+      setTimeout(this.clearNotification, 3000);
+    }
   }
 
   clearNotification(): void {
@@ -143,34 +178,29 @@ export default class App extends React.Component<IAppProps, IAppState> {
       .loadAsync()
       .then(loadedGlossary => {
         this.glossary.current = loadedGlossary;
-        this.setState({
-          glossary: this.glossary.current,
-          itemsToShow: this.glossary.current.items,
-          notification: {
-            message: "Loaded successfully",
-            messageBarType: MessageBarType.success
-          }
-        });
+        this.refreshGlossaryState();
+        this.setNotification("Loaded successfully", MessageBarType.success);
       })
       .catch(reason => {
-        this.setState({
-          notification: {
-            message: reason,
-            messageBarType: MessageBarType.error
-          }
-        });
+        this.setNotification(reason, MessageBarType.info);
       });
   }
 
-  onImported(items: IGlossaryItem[]) {
+  async onImported(items: IGlossaryItem[]) {
     this.glossary.current.addRange(items);
+    await this.glossaryStore.saveAsync(this.glossary.current);
+
+    this.setNotification("Glossary updated", MessageBarType.success);
+    this.refreshGlossaryState();
     this.setState({
-      import: false,
-      glossary: this.glossary.current,
-      itemsToShow: this.glossary.current.items
+      import: false
     });
-    this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
-      this.setNotification("Glossary updated", MessageBarType.success);
+  }
+
+  refreshGlossaryState(): void {
+    this.setState({
+      glossary: this.glossary.current,
+      itemsToShow: [...this.glossary.current.items]
     });
   }
 
@@ -214,16 +244,21 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     return (
       <div>
-        <Stack tokens={{ childrenGap: 10 }}>
+        <Stack>
           {!!this.state.glossary && (
             <Stack.Item align="stretch">
-              <ControlPanel onNew={this.onEditMode} onSave={this.onSaveGlossary} onImport={this.onImport} />
+              <ControlPanel onNew={this.onNewItem} onSave={this.onSaveGlossary} onImport={this.onImport} />
             </Stack.Item>
           )}
 
-          {!!this.state.edit && (
-            <Stack.Item align="center">
-              <NewItem addWord={this.addWord} notify={this.setNotification}></NewItem>
+          {!!this.state.showItemForm && (
+            <Stack.Item align="stretch" tokens={{ margin: 20 }}>
+              <AddEdit
+                onSubmit={this.onItemFormSubmit}
+                onCancel={this.onItemFormCancel}
+                notify={this.setNotification}
+                item={this.state.selectedItem}
+              ></AddEdit>
             </Stack.Item>
           )}
 
@@ -233,12 +268,14 @@ export default class App extends React.Component<IAppProps, IAppState> {
             </Stack.Item>
           )}
 
-          <Stack.Item align="center">
-            {!this.state.glossary && <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>}
-          </Stack.Item>
+          {!this.state.glossary &&
+            <Stack.Item align="center">
+              <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>
+            </Stack.Item>
+          }
 
-          <Stack.Item align="stretch">
-            {this.state.glossary && (
+          {this.state.glossary && (
+            <Stack.Item align="stretch">
               <Stack>
                 <Stack.Item align="center">
                   <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">
@@ -254,12 +291,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
                     target={this.state.glossary.target.name}
                     items={this.state.itemsToShow}
                     onRowClick={this.insertWord}
+                    onEditRow={this.onEditWord}
                     notify={this.setNotification}
                   ></GlossaryTable>
                 </Stack.Item>
               </Stack>
-            )}
-          </Stack.Item>
+            </Stack.Item>
+          )}
         </Stack>
 
         <Stack {...notificationStackProps}>

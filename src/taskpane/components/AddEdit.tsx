@@ -1,26 +1,23 @@
 import * as React from "react";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
-import { PrimaryButton } from "office-ui-fabric-react/lib/Button";
+import { PrimaryButton, DefaultButton } from "office-ui-fabric-react/lib/Button";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 
 import { IGlossaryItem } from "../types/glossary";
 import { VERTICAL_STACK_TOKENS } from "../utils/constants";
 
-export interface INewItemProps {
-  addWord: any;
-  notify: (message: string, messageType?: MessageBarType) => any;
+export interface IAddEditProps {
+  onSubmit: any;
+  onCancel(e: React.MouseEvent<HTMLElement, MouseEvent>): any;
+  notify(message: string, messageType?: MessageBarType): any;
+  item?: IGlossaryItem;
 }
 
-export default class NewItem extends React.Component<INewItemProps, IGlossaryItem | any> {
-  constructor(props) {
+export default class AddEdit extends React.Component<IAddEditProps, IGlossaryItem | any> {
+  constructor(props: IAddEditProps) {
     super(props);
-    this.state = {
-      key: "",
-      original: "",
-      translation: "",
-      note: ""
-    };
+    this.state = !!props.item ? props.item : { key: "", original: "", translation: "", note: "" };
     this._onInputChange = this._onInputChange.bind(this);
     this._onSave = this._onSave.bind(this);
   }
@@ -42,15 +39,21 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
     if (normalized.original.length == 0) {
       this.props.notify("Original word should not be empty!", MessageBarType.error);
     } else {
-      this.props.addWord(normalized);
+      this.props.onSubmit(normalized);
       this.setState({ original: "", translation: "", note: "" });
     }
   }
 
   public render() {
     return (
-      <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
-        <TextField label="Word" name="original" value={this.state.original} onChange={this._onInputChange} />
+      <Stack verticalAlign="stretch" tokens={VERTICAL_STACK_TOKENS}>
+        <TextField
+          label="Word"
+          name="original"
+          value={this.state.original}
+          onChange={this._onInputChange}
+          disabled={!!this.props.item}
+        />
         <TextField
           label="Translation"
           name="translation"
@@ -58,7 +61,14 @@ export default class NewItem extends React.Component<INewItemProps, IGlossaryIte
           onChange={this._onInputChange}
         />
         <TextField label="Note" name="note" multiline rows={3} value={this.state.note} onChange={this._onInputChange} />
-        <PrimaryButton text="Add" onClick={() => this._onSave()} />
+        <Stack horizontal horizontalAlign="center" tokens={{ childrenGap: 25, padding: 10 }}>
+          <Stack.Item>
+            <DefaultButton text="Cancel" onClick={this.props.onCancel} />
+          </Stack.Item>
+          <Stack.Item>
+            <PrimaryButton text="Submit" onClick={() => this._onSave()} />
+          </Stack.Item>
+        </Stack>
       </Stack>
     );
   }

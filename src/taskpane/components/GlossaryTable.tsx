@@ -26,6 +26,7 @@ export interface IGlossaryTableProps {
   target: string;
   items: IGlossaryItem[];
   onRowClick(item: IGlossaryItem): Promise<any>;
+  onEditRow(item: IGlossaryItem): void;
   notify(message: string, messageType?: MessageBarType): any;
 }
 
@@ -51,7 +52,6 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       onSelectionChanged: async () => {
         const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
         await this.props.onRowClick(selectionDetails);
-        this._selection.toggleAllSelected();
       },
       selectionMode: SelectionMode.single
     });
@@ -102,7 +102,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
             selectionPreservedOnEmptyClick={false}
             isHeaderVisible={true}
             onRenderRow={this._onRenderRow}
-            onRenderItemColumn={this._renderItemColumn}
+            onRenderItemColumn={this._onRenderItemColumn}
           />
         </Stack.Item>
       </Stack>
@@ -115,15 +115,23 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       this._getLanguageColumn(this.props.target),
       {
         key: "noteCol",
-        name: "Note",
+        name: "",
         fieldName: "note",
-        minWidth: 40,
-        maxWidth: 40,
+        minWidth: 35,
+        maxWidth: 35,
         columnActionsMode: ColumnActionsMode.disabled,
-        isRowHeader: false,
         isResizable: false,
-        data: "string",
-        isCollapsible: true
+        data: "string"
+      },
+      {
+        key: "commandCol",
+        name: "",
+        fieldName: "command",
+        minWidth: 35,
+        maxWidth: 35,
+        columnActionsMode: ColumnActionsMode.disabled,
+        isResizable: false,
+        data: "string"
       }
     ];
   }
@@ -186,7 +194,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     return null;
   };
 
-  private _renderItemColumn = (item: IGlossaryItem, index: number, column: IColumn) => {
+  private _onRenderItemColumn = (item: IGlossaryItem, index: number, column: IColumn) => {
     const fieldContent = item[column.fieldName as keyof IGlossaryItem] as string;
     const commentIcon: IIconProps = { iconName: "Comment" };
     const tooltipId = `note${index}`;
@@ -197,6 +205,16 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         <TooltipHost content={fieldContent} id={tooltipId} styles={hostStyles}>
           <IconButton iconProps={commentIcon} aria-describedby={tooltipId} data-selection-disabled={true} />
         </TooltipHost>
+      );
+    } else if (column.fieldName === "command") {
+      return (
+        <IconButton
+          iconProps={{ iconName: "Edit" }}
+          data-selection-disabled={true}
+          onClick={_ => {
+            this.props.onEditRow(item);
+          }}
+        />
       );
     } else {
       return <span>{fieldContent}</span>;
