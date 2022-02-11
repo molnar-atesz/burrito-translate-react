@@ -52,7 +52,6 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       onSelectionChanged: async () => {
         const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
         await this.props.onRowClick(selectionDetails);
-        this._selection.toggleAllSelected();
       },
       selectionMode: SelectionMode.single
     });
@@ -211,7 +210,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       return (
         <IconButton
           iconProps={{ iconName: "Edit" }}
-          data-selection-disabled
+          data-selection-disabled={true}
           onClick={_ => {
             this.props.onEditRow(item);
           }}
