@@ -1,10 +1,5 @@
 import { IGlossary, IGlossaryItem } from "../types/glossary";
-import {
-  createEmptyGlossary,
-  createGlossaryWithWords,
-  english,
-  hungarian
-} from "../__fixtures__/glossary";
+import { createEmptyGlossary, createGlossaryWithWords, english, hungarian } from "../__fixtures__/glossary";
 import { Glossary } from "./Glossary";
 
 describe("Glossary", () => {
@@ -80,7 +75,8 @@ describe("Glossary", () => {
       let item: IGlossaryItem = {
         key: "1",
         original: word,
-        translation: "dog", note: "no"
+        translation: "dog",
+        note: "no"
       };
       glossary.addItem(item);
       const changedTranslationValue = "new translation value";
@@ -98,9 +94,7 @@ describe("Glossary", () => {
 
       const act = () => glossary.editItem("not-existing-word", "translation", null);
 
-      expect(act).toThrow(
-        "Invalid argument: 'not-existing-word' is not an existing word"
-      );
+      expect(act).toThrow("Invalid argument: 'not-existing-word' is not an existing word");
     });
 
     test("should throw error on undefined translation", () => {
@@ -111,9 +105,7 @@ describe("Glossary", () => {
 
       const act = () => glossary.editItem(word, undefined);
 
-      expect(act).toThrow(
-        "Invalid argument: 'newTranslation' is required"
-      );
+      expect(act).toThrow("Invalid argument: 'newTranslation' is required");
     });
   });
 

@@ -1,5 +1,5 @@
 export default class DocumentService {
-  constructor() { }
+  constructor() {}
 
   public async insertText(text: string): Promise<boolean> {
     await Word.run(async context => {
@@ -9,14 +9,13 @@ export default class DocumentService {
 
       await context.sync();
       return true;
-    })
-      .catch((error) => {
-        console.log(error);
-        if (error instanceof OfficeExtension.Error) {
-          console.log("Debug info: " + JSON.stringify(error.debugInfo));
-        }
-        return false;
-      });
+    }).catch(error => {
+      console.log(error);
+      if (error instanceof OfficeExtension.Error) {
+        console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+      return false;
+    });
     return false;
   }
 }
