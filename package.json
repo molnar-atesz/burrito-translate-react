@@ -74,6 +74,7 @@
     "office-addin-dev-certs": "^1.5.5",
     "office-addin-lint": "^1.0.26",
     "office-addin-manifest": "^1.7.6",
+    "office-addin-mock": "^2.1.0",
     "office-addin-prettier-config": "^1.0.12",
     "postcss-loader": "3.0.0",
     "react-hot-loader": "^4.12.6",
