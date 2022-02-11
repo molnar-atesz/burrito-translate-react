@@ -61,7 +61,7 @@ export default class AddEdit extends React.Component<IAddEditProps, IGlossaryIte
           onChange={this._onInputChange}
         />
         <TextField label="Note" name="note" multiline rows={3} value={this.state.note} onChange={this._onInputChange} />
-        <Stack horizontal verticalAlign="stretch">
+        <Stack horizontal horizontalAlign="center" tokens={{ childrenGap: 25, padding: 10 }}>
           <Stack.Item>
             <DefaultButton text="Cancel" onClick={this.props.onCancel} />
           </Stack.Item>

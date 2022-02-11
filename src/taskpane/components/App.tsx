@@ -79,7 +79,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   private bindMethodsToThis() {
     this.onItemFormSubmit = this.onItemFormSubmit.bind(this);
     this.onItemFormCancel = this.onItemFormCancel.bind(this);
-    this.editWord = this.editWord.bind(this);
+    this.onEditWord = this.onEditWord.bind(this);
     this.insertWord = this.insertWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.clearNotification = this.clearNotification.bind(this);
@@ -101,7 +101,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  editWord(item: IGlossaryItem): void {
+  onEditWord(item: IGlossaryItem): void {
     this.setState({
       selectedItem: item,
       showItemForm: true,
@@ -249,7 +249,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     return (
       <div>
-        <Stack tokens={{ childrenGap: 10 }}>
+        <Stack>
           {!!this.state.glossary && (
             <Stack.Item align="stretch">
               <ControlPanel onNew={this.onNewItem} onSave={this.onSaveGlossary} onImport={this.onImport} />
@@ -257,7 +257,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
           )}
 
           {!!this.state.showItemForm && (
-            <Stack.Item align="center">
+            <Stack.Item align="stretch" tokens={{ margin: 20 }}>
               <AddEdit
                 onSubmit={this.onItemFormSubmit}
                 onCancel={this.onItemFormCancel}
@@ -273,12 +273,14 @@ export default class App extends React.Component<IAppProps, IAppState> {
             </Stack.Item>
           )}
 
-          <Stack.Item align="center">
-            {!this.state.glossary && <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>}
-          </Stack.Item>
+          {!this.state.glossary &&
+            <Stack.Item align="center">
+              <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>
+            </Stack.Item>
+          }
 
-          <Stack.Item align="stretch">
-            {this.state.glossary && (
+          {this.state.glossary && (
+            <Stack.Item align="stretch">
               <Stack>
                 <Stack.Item align="center">
                   <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">
@@ -294,13 +296,13 @@ export default class App extends React.Component<IAppProps, IAppState> {
                     target={this.state.glossary.target.name}
                     items={this.state.itemsToShow}
                     onRowClick={this.insertWord}
-                    onEditRow={this.editWord}
+                    onEditRow={this.onEditWord}
                     notify={this.setNotification}
                   ></GlossaryTable>
                 </Stack.Item>
               </Stack>
-            )}
-          </Stack.Item>
+            </Stack.Item>
+          )}
         </Stack>
 
         <Stack {...notificationStackProps}>

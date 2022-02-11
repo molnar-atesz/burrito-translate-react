@@ -118,23 +118,21 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         key: "noteCol",
         name: "",
         fieldName: "note",
-        minWidth: 40,
-        maxWidth: 40,
+        minWidth: 35,
+        maxWidth: 35,
         columnActionsMode: ColumnActionsMode.disabled,
         isResizable: false,
-        data: "string",
-        isCollapsible: true
+        data: "string"
       },
       {
         key: "commandCol",
         name: "",
         fieldName: "command",
-        minWidth: 40,
-        maxWidth: 40,
+        minWidth: 35,
+        maxWidth: 35,
         columnActionsMode: ColumnActionsMode.disabled,
         isResizable: false,
-        data: "string",
-        isCollapsible: true
+        data: "string"
       }
     ];
   }
