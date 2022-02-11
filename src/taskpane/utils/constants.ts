@@ -1,4 +1,4 @@
-import { Language } from "../models/Glossary";
+import { Language } from "../models/Language";
 
 export const LANGUAGES = [
   new Language("English", "en", 1),

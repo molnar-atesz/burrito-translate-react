@@ -5,9 +5,17 @@ import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 
-import { IGlossary, IGlossaryItem, IGlossaryStore, IGlossaryXmlSerializer, INotification, ISearchOptions } from "../types/glossary";
+import {
+  IGlossary,
+  IGlossaryItem,
+  IGlossaryStore,
+  IGlossaryXmlSerializer,
+  INotification,
+  ISearchOptions
+} from "../types/glossary";
 import CustomXmlStorageService from "../services/CustomXmlStorageService";
-import { Glossary, Language } from "../models/Glossary";
+import { Glossary } from "../models/Glossary";
+import { Language } from "../models/Language";
 import GlossaryXmlSerializer from "../utils/GlossaryXmlSerializer";
 import { XMLNS } from "../utils/constants";
 
@@ -131,18 +139,20 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   loadGlossaryFromDoc(): void {
-    this.glossaryStore.loadAsync().then(loadedGlossary => {
-      this.glossary.current = loadedGlossary;
-      this.setState({
-        glossary: this.glossary.current,
-        itemsToShow: this.glossary.current.items,
-        notification: {
-          message: "Loaded successfully",
-          messageBarType: MessageBarType.success
-        }
-      });
-    })
-      .catch((reason) => {
+    this.glossaryStore
+      .loadAsync()
+      .then(loadedGlossary => {
+        this.glossary.current = loadedGlossary;
+        this.setState({
+          glossary: this.glossary.current,
+          itemsToShow: this.glossary.current.items,
+          notification: {
+            message: "Loaded successfully",
+            messageBarType: MessageBarType.success
+          }
+        });
+      })
+      .catch(reason => {
         this.setState({
           notification: {
             message: reason,
@@ -205,15 +215,11 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return (
       <div>
         <Stack tokens={{ childrenGap: 10 }}>
-          {!!this.state.glossary &&
+          {!!this.state.glossary && (
             <Stack.Item align="stretch">
-              <ControlPanel
-                onNew={this.onEditMode}
-                onSave={this.onSaveGlossary}
-                onImport={this.onImport}
-              />
+              <ControlPanel onNew={this.onEditMode} onSave={this.onSaveGlossary} onImport={this.onImport} />
             </Stack.Item>
-          }
+          )}
 
           {!!this.state.edit && (
             <Stack.Item align="center">
@@ -235,18 +241,21 @@ export default class App extends React.Component<IAppProps, IAppState> {
             {this.state.glossary && (
               <Stack>
                 <Stack.Item align="center">
-                  <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">Glossary</h2>
+                  <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">
+                    Glossary
+                  </h2>
                 </Stack.Item>
                 <Stack.Item align="stretch">
                   <Search onSearch={this.search}></Search>
                 </Stack.Item>
                 <Stack.Item align="stretch">
-                  <GlossaryTable source={this.state.glossary.source.name}
+                  <GlossaryTable
+                    source={this.state.glossary.source.name}
                     target={this.state.glossary.target.name}
                     items={this.state.itemsToShow}
                     onRowClick={this.insertWord}
-                    notify={this.setNotification}>
-                  </GlossaryTable>
+                    notify={this.setNotification}
+                  ></GlossaryTable>
                 </Stack.Item>
               </Stack>
             )}

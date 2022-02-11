@@ -1,7 +1,7 @@
 {
   "homepage": "http://molnar-atesz.github.io/burrito-translate-react",
   "name": "burrito-translate-react",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/molnar-atesz/burrito-translate-react.git"
@@ -21,7 +21,7 @@
     "build-dev": "webpack --mode development --https false && echo . && echo . && echo . && echo Please use 'build:dev' instead of 'build-dev'.",
     "dev-server": "webpack-dev-server --mode development",
     "test": "jest --runInBand",
-    "test-watch": "jest --watchAll --runInBand",
+    "test:watch": "jest --watchAll --runInBand",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
     "prettier": "office-addin-lint prettier",
@@ -74,6 +74,7 @@
     "office-addin-dev-certs": "^1.5.5",
     "office-addin-lint": "^1.0.26",
     "office-addin-manifest": "^1.7.6",
+    "office-addin-mock": "^2.1.0",
     "office-addin-prettier-config": "^1.0.12",
     "postcss-loader": "3.0.0",
     "react-hot-loader": "^4.12.6",

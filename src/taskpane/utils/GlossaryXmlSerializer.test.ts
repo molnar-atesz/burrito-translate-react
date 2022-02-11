@@ -1,22 +1,18 @@
-import { Glossary, Language } from "../models/Glossary";
 import { IGlossary, IGlossaryItem, IGlossaryXmlSerializer } from "../types/glossary";
+import { createEmptyGlossary, english, hungarian } from "../__fixtures__/glossary";
 import { XMLNS } from "./constants";
 import GlossaryXmlSerializer from "./GlossaryXmlSerializer";
 
-const english = new Language("English", "en", 1);
-const hungarian = new Language("Magyar", "hu", 2);
-
-describe("constructor", () => {
-  test("should throw exception on empty xmlns", () => {
-    expect(() => {
+describe("GlossaryXmlSerializer", () => {
+  test("should not be able to create without xmlns", () => {
+    const act = () => {
       new GlossaryXmlSerializer(undefined);
-    }).toThrow("Invalid argument: xmlns is required");
+    };
+    expect(act).toThrow("Invalid argument: xmlns is required");
   });
 });
 
 describe("serialize", () => {
-  let glossary: IGlossary;
-  let serializer: IGlossaryXmlSerializer;
   const realDate = Date;
   const nowStubValue = "2021-02-04T22:27:58.801Z";
   const nowStubDate = new Date(nowStubValue);
@@ -39,31 +35,39 @@ describe("serialize", () => {
     global.Date = realDate;
   });
 
-  beforeEach(() => {
-    serializer = new GlossaryXmlSerializer(XMLNS);
-    glossary = new Glossary(english, hungarian);
-  });
-
   test("should create proper root node", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const glossary = createEmptyGlossary();
+
     const res = serializer.serialize(glossary);
+
     const rootElementCount = (res.match(/<burritoMemory/g) || []).length;
     expect(rootElementCount).toBe(1);
   });
 
   test("should contain only one root node", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const glossary = createEmptyGlossary();
+
     const res = serializer.serialize(glossary);
+
     expect(res.startsWith("<burritoMemory xmlns")).toBeTruthy();
   });
 
-  test("should add xmlns value passed via constructor to root node", () => {
+  test("should set xmlns to root node", () => {
     const xmlnsValue = "http://xmlns.value";
-    const serializer = new GlossaryXmlSerializer(xmlnsValue);
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(xmlnsValue);
+    const glossary = createEmptyGlossary();
 
     const res = serializer.serialize(glossary);
+
     expect(res.startsWith(`<burritoMemory xmlns='${xmlnsValue}'>`)).toBeTruthy();
   });
 
   test("should add source and target language abbreviations as xml nodes", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const glossary = createEmptyGlossary();
+
     const res = serializer.serialize(glossary);
 
     expect(res).toContain("<source>en</source>");
@@ -71,15 +75,20 @@ describe("serialize", () => {
   });
 
   test("should add created value in json format", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const glossary = createEmptyGlossary();
+
     const res = serializer.serialize(glossary);
 
     expect(res).toContain(`<created>${nowStubValue}</created>`);
   });
 
   test("should add all items inside a <items> node", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const glossary = createEmptyGlossary();
     const item1: IGlossaryItem = { key: "1", original: "the", translation: "az", note: "megj" };
     const item2: IGlossaryItem = { key: "2", original: "one", translation: "egy" };
-    glossary.items.push(item1, item2);
+    glossary.addRange([item1, item2]);
 
     const res = serializer.serialize(glossary);
 
@@ -88,14 +97,12 @@ describe("serialize", () => {
     );
   });
 
-  describe("Escaping", () => {
-    beforeEach(() => {
-      serializer = new GlossaryXmlSerializer(XMLNS);
-    });
-
+  describe("escaping special characters", () => {
     test("should escape '&' sign", () => {
+      const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+      const glossary = createEmptyGlossary();
       const item1: IGlossaryItem = { key: "1", original: "the'", translation: "az'", note: "megj'" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -105,8 +112,10 @@ describe("serialize", () => {
     });
 
     test("should escape '<' sign", () => {
+      const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+      const glossary = createEmptyGlossary();
       const item1: IGlossaryItem = { key: "1", original: "the<", translation: "az<", note: "megj<" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -116,8 +125,10 @@ describe("serialize", () => {
     });
 
     test("should escape '>' sign", () => {
+      const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+      const glossary = createEmptyGlossary();
       const item1: IGlossaryItem = { key: "1", original: "the>", translation: "az>", note: "megj>" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -127,8 +138,10 @@ describe("serialize", () => {
     });
 
     test("should escape '&' sign", () => {
+      const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+      const glossary = createEmptyGlossary();
       const item1: IGlossaryItem = { key: "1", original: "&the", translation: "&az", note: "&megj" };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -138,8 +151,10 @@ describe("serialize", () => {
     });
 
     test("should escape '\"' sign", () => {
+      const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+      const glossary = createEmptyGlossary();
       const item1: IGlossaryItem = { key: "1", original: '"the"', translation: 'az"', note: 'megj"' };
-      glossary.items.push(item1);
+      glossary.addItem(item1);
 
       const res = serializer.serialize(glossary);
 
@@ -148,48 +163,52 @@ describe("serialize", () => {
       );
     });
   });
+});
 
-  describe("deserialize", () => {
-    let serializer: IGlossaryXmlSerializer;
-    const CUSTOM_XML: string =
-      "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-03T22:27:58.801Z</created><items><item original='the' translation='az' note='megj' /><item original='one' translation='egy' /></items></burritoMemory>";
+describe("deserialize", () => {
+  const CUSTOM_XML: string =
+    "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-03T22:27:58.801Z</created><items><item original='the' translation='az' note='megj' /><item original='one' translation='egy' /></items></burritoMemory>";
 
-    beforeEach(() => {
-      serializer = new GlossaryXmlSerializer(XMLNS);
-    });
+  test("should set the source and target language properly", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
 
-    test("should set the source and target language properly", () => {
-      const res: IGlossary = serializer.deserialize(CUSTOM_XML);
-      const english = new Language("English", "en", 1);
-      expect(res.source).toEqual(english);
-      expect(res.target).toEqual(hungarian);
-      expect(res.id).toEqual("en-hu");
-    });
+    const res: IGlossary = serializer.deserialize(CUSTOM_XML);
 
-    test("should set the created value based on XML created node", () => {
-      const res: IGlossary = serializer.deserialize(CUSTOM_XML);
-      const creationDate = new Date("2021-02-03T22:27:58.801Z");
-      expect(res.created.toJSON()).toEqual(creationDate.toJSON());
-    });
+    expect(res.source).toEqual(english);
+    expect(res.target).toEqual(hungarian);
+    expect(res.id).toEqual("en-hu");
+  });
 
-    test("should add all items from xml to the glossary", () => {
-      const res = serializer.deserialize(CUSTOM_XML);
-      const item1: IGlossaryItem = { key: "1", original: "the", translation: "az", note: "megj" };
-      const item2: IGlossaryItem = { key: "2", original: "one", translation: "egy" };
+  test("should set the created value based on XML created node", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
 
-      expect(res.items.length).toEqual(2);
-      expect(res.items[0]).toEqual(item1);
-      expect(res.items[1]).toEqual(item2);
-    });
+    const res: IGlossary = serializer.deserialize(CUSTOM_XML);
+    const creationDate = new Date("2021-02-03T22:27:58.801Z");
 
-    test("should unescape xml default words", () => {
-      const xmlToDeserialize = "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='I&apos;m &lt;me&amp;myself&gt;' translation='az&quot;' note='megj&quot;' /></items></burritoMemory>";
+    expect(res.created.toJSON()).toEqual(creationDate.toJSON());
+  });
 
-      const res = serializer.deserialize(xmlToDeserialize);
-      const item1: IGlossaryItem = { key: "1", original: "I'm <me&myself>", translation: 'az"', note: 'megj"' };
+  test("should add all items from xml to the glossary", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const item1: IGlossaryItem = { key: "1", original: "the", translation: "az", note: "megj" };
+    const item2: IGlossaryItem = { key: "2", original: "one", translation: "egy" };
 
-      expect(res.items.length).toEqual(1);
-      expect(res.items[0]).toEqual(item1);
-    });
+    const res = serializer.deserialize(CUSTOM_XML);
+
+    expect(res.items.length).toEqual(2);
+    expect(res.items[0]).toEqual(item1);
+    expect(res.items[1]).toEqual(item2);
+  });
+
+  test("should unescape xml default words", () => {
+    const serializer: IGlossaryXmlSerializer = new GlossaryXmlSerializer(XMLNS);
+    const xmlToDeserialize =
+      "<burritoMemory xmlns='http://burrito.org/translate'><source>en</source><target>hu</target><created>2021-02-04T22:27:58.801Z</created><items><item original='I&apos;m &lt;me&amp;myself&gt;' translation='az&quot;' note='megj&quot;' /></items></burritoMemory>";
+    const item1: IGlossaryItem = { key: "1", original: "I'm <me&myself>", translation: 'az"', note: 'megj"' };
+
+    const res = serializer.deserialize(xmlToDeserialize);
+
+    expect(res.items.length).toEqual(1);
+    expect(res.items[0]).toEqual(item1);
   });
 });
