@@ -32,19 +32,27 @@ describe("Glossary", () => {
     test("should add item at the end of items list", () => {
       const glossary = createEmptyGlossary();
       const item: IGlossaryItem = { key: "50", original: "husk", translation: "dog", note: "no" };
+
       glossary.addItem(item);
+
       expect(glossary.items).toContain(item);
     });
 
     test("should throw error on undefined parameter", () => {
       const glossary = createEmptyGlossary();
-      expect(() => glossary.addItem(undefined)).toThrow("Item should not be empty!");
+
+      const act = () => glossary.addItem(undefined);
+
+      expect(act).toThrow("Item should not be empty!");
     });
 
     test("should throw error if 'original' is empty string", () => {
       const glossary = createEmptyGlossary();
       let item1: IGlossaryItem = { key: "1", original: "", translation: "dog", note: "no" };
-      expect(() => glossary.addItem(item1)).toThrow("Original word should not be empty!");
+
+      const act = () => glossary.addItem(item1);
+
+      expect(act).toThrow("Original word should not be empty!");
     });
 
     test("should add word even if it is duplicated", () => {
@@ -64,13 +72,17 @@ describe("Glossary", () => {
     test("should change translation and note of passed word", () => {
       const glossary = createEmptyGlossary();
       const word = "husk";
-      let item: IGlossaryItem = { key: "1", original: word, translation: "dog", note: "no" };
+      let item: IGlossaryItem = {
+        key: "1",
+        original: word,
+        translation: "dog", note: "no"
+      };
       glossary.addItem(item);
       const changedTranslationValue = "new translation value";
       const changedNoteValue = "some note";
 
       glossary.editItem(word, changedTranslationValue, changedNoteValue);
-      const storedItem: IGlossaryItem = glossary.items.find(i => i.original === word);
+      const storedItem: IGlossaryItem = glossary.items[0];
 
       expect(storedItem.translation).toBe(changedTranslationValue);
       expect(storedItem.note).toBe(changedNoteValue);
@@ -79,7 +91,9 @@ describe("Glossary", () => {
     test("should throw error on not existing word", () => {
       const glossary = createEmptyGlossary();
 
-      expect(() => glossary.editItem("not-existing-word", "translation", null)).toThrow(
+      const act = () => glossary.editItem("not-existing-word", "translation", null);
+
+      expect(act).toThrow(
         "Invalid argument: 'not-existing-word' is not an existing word"
       );
     });
@@ -87,36 +101,35 @@ describe("Glossary", () => {
     test("should throw error on undefined translation", () => {
       const word = "husk";
       const glossary = createEmptyGlossary();
-
-      let item: IGlossaryItem = { key: "1", original: word, translation: "dog", note: "no" };
+      const item: IGlossaryItem = { key: "1", original: word, translation: "dog", note: "no" };
       glossary.addItem(item);
 
-      expect(() => glossary.editItem(word, undefined)).toThrow("Invalid argument: 'newTranslation' is required");
+      const act = () => glossary.editItem(word, undefined);
+
+      expect(act).toThrow(
+        "Invalid argument: 'newTranslation' is required"
+      );
     });
   });
 
   describe("addRange", () => {
-    let glossary: IGlossary;
-    const russian = new Language("Russian", "ru", 1);
-    const hungarian = new Language("Magyar", "hu", 2);
-
-    beforeEach(() => {
-      glossary = new Glossary(russian, hungarian);
-    });
-
     test("should add all items from passed array", () => {
+      const glossary = createEmptyGlossary();
       const items: IGlossaryItem[] = [
         { key: "1", original: "husk", translation: "dog", note: "no" },
         { key: "b", original: "test", translation: "teszt", note: "" },
         { key: "c", original: "word", translation: "szo" }
       ];
+
       glossary.addRange(items);
+
       expect(glossary.items).toContain(items[0]);
       expect(glossary.items).toContain(items[1]);
       expect(glossary.items).toContain(items[2]);
     });
 
     test("should skip empty words", () => {
+      const glossary = createEmptyGlossary();
       const empty = { key: "c", original: "", translation: "szo" };
       const items: IGlossaryItem[] = [
         { key: "1", original: "husk", translation: "dog", note: "no" },
@@ -130,32 +143,21 @@ describe("Glossary", () => {
     });
 
     test("should throw error on undefined parameter", () => {
-      expect(() => glossary.addRange(undefined)).toThrow("Invalid argument: 'newItems' is required");
+      const glossary = createEmptyGlossary();
+
+      const act = () => glossary.addRange(undefined);
+
+      expect(act).toThrow("Invalid argument: 'newItems' is required");
     });
   });
 
   describe("clear", () => {
-    let glossary: IGlossary;
-    const russian = new Language("Russian", "ru", 1);
-    const hungarian = new Language("Magyar", "hu", 2);
-
-    beforeEach(() => {
-      glossary = new Glossary(russian, hungarian);
-      const items: IGlossaryItem[] = [
-        { key: "1", original: "husk", translation: "dog", note: "no" },
-        { key: "b", original: "test", translation: "teszt", note: "" },
-        { key: "c", original: "word", translation: "szo" }
-      ];
-      glossary.addRange(items);
-    });
-
     test("should remove all previously added items", () => {
-      glossary.clear();
-      expect(glossary.items.length).toEqual(0);
-    });
+      const glossary = createGlossaryWithWords();
 
-    test("should throw error on undefined parameter", () => {
-      expect(() => glossary.addRange(undefined)).toThrow("Invalid argument: 'newItems' is required");
+      glossary.clear();
+
+      expect(glossary.items.length).toEqual(0);
     });
   });
 
@@ -258,7 +260,6 @@ describe("Glossary", () => {
 
     test("should find only case sensitive whole words in original when options set", () => {
       const glossary = createGlossaryWithWords();
-
       const searchExpression = "Whole";
       const expectedResult = [{ key: "5", original: "Whole Sensitive", translation: "Teljes Érzékeny" }];
       const searchOptions = {
