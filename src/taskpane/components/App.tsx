@@ -141,10 +141,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
   onCreateGlossary(source: Language, target: Language) {
     this.glossary.current = new Glossary(source, target);
-    this.setState({
-      glossary: this.glossary.current,
-      itemsToShow: [...this.glossary.current.items]
-    });
+    this.refreshGlossaryState();
   }
 
   setNotification(message: string, messageType?: MessageBarType) {
@@ -154,6 +151,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
         messageBarType: !messageType ? MessageBarType.info : messageType
       }
     });
+    if (!!message) {
+      setTimeout(this.clearNotification, 3000);
+    }
   }
 
   clearNotification(): void {
@@ -178,14 +178,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
       .loadAsync()
       .then(loadedGlossary => {
         this.glossary.current = loadedGlossary;
-        this.setState({
-          glossary: this.glossary.current,
-          itemsToShow: this.glossary.current.items,
-          notification: {
-            message: "Loaded successfully",
-            messageBarType: MessageBarType.success
-          }
-        });
+        this.refreshGlossaryState();
+        this.setNotification("Loaded successfully", MessageBarType.success);
       })
       .catch(reason => {
         this.setState({
@@ -200,12 +194,18 @@ export default class App extends React.Component<IAppProps, IAppState> {
   onImported(items: IGlossaryItem[]) {
     this.glossary.current.addRange(items);
     this.setState({
-      import: false,
-      glossary: this.glossary.current,
-      itemsToShow: this.glossary.current.items
+      import: false
     });
+    this.refreshGlossaryState();
     this.glossaryStore.saveAsync(this.glossary.current).then(_ => {
       this.setNotification("Glossary updated", MessageBarType.success);
+    });
+  }
+
+  refreshGlossaryState(): void {
+    this.setState({
+      glossary: this.glossary.current,
+      itemsToShow: [...this.glossary.current.items]
     });
   }
 

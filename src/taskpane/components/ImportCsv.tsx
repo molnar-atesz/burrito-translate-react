@@ -29,8 +29,6 @@ export default class ImportCsv extends React.Component<IImportCsvProps, any> {
         note: item.data[2]
       };
     });
-    console.log("Data loaded");
-    console.log(items);
     this.props.onImported(items);
   }
 
