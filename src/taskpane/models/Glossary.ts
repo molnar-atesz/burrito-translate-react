@@ -38,12 +38,16 @@ export class Glossary implements IGlossary {
 
   public deleteItem(word: string) {
     let delIndex = this._items.findIndex(item => item.original === word);
+    if (delIndex === -1) {
+      throw new Error(`Not found: '${word}'`);
+
+    }
     this._items.splice(delIndex, 1);
   }
 
   public addItem(newItem: IGlossaryItem) {
     if (!newItem) {
-      throw new Error("Item should not be empty!");
+      throw new Error("Invalid argument: 'newItem' is required");
     }
 
     if (newItem.original.length == 0) {

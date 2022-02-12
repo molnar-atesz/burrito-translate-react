@@ -26,6 +26,7 @@ import NewGlossary from "./NewGlossary";
 import ImportCsv from "./ImportCsv";
 import Search from "./Search";
 import DocumentService from "../services/DocumentService";
+import { DefaultButton, Dialog, DialogFooter, DialogType, PrimaryButton } from "office-ui-fabric-react";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -40,6 +41,7 @@ export interface IAppState {
   glossary?: IGlossary;
   notification: INotification;
   showItemForm: boolean;
+  hideDeleteDialog: boolean;
   itemFormMode: ItemFormMode;
   selectedItem: IGlossaryItem;
   import: boolean;
@@ -63,6 +65,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
         messageBarType: MessageBarType.info
       },
       showItemForm: false,
+      hideDeleteDialog: true,
       itemFormMode: ItemFormMode.create,
       selectedItem: null,
       import: false,
@@ -79,7 +82,10 @@ export default class App extends React.Component<IAppProps, IAppState> {
   private bindMethodsToThis() {
     this.onItemFormSubmit = this.onItemFormSubmit.bind(this);
     this.onItemFormCancel = this.onItemFormCancel.bind(this);
-    this.onEditWord = this.onEditWord.bind(this);
+    this.onEditItem = this.onEditItem.bind(this);
+    this.onDeleteItem = this.onDeleteItem.bind(this);
+    this.hideDeleteDialog = this.hideDeleteDialog.bind(this);
+    this.confirmDeletion = this.confirmDeletion.bind(this);
     this.insertWord = this.insertWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.clearNotification = this.clearNotification.bind(this);
@@ -101,12 +107,33 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  onEditWord(item: IGlossaryItem): void {
+  onEditItem(item: IGlossaryItem): void {
     this.setState({
       selectedItem: item,
       showItemForm: true,
       itemFormMode: ItemFormMode.edit
     });
+  }
+
+  onDeleteItem(item: IGlossaryItem): void {
+    this.setState({
+      selectedItem: item,
+      hideDeleteDialog: false
+    });
+  }
+
+  hideDeleteDialog(): void {
+    this.setState({
+      selectedItem: null,
+      hideDeleteDialog: true
+    });
+  }
+
+  async confirmDeletion(): Promise<void> {
+    this.glossary.current.deleteItem(this.state.selectedItem.original);
+    await this.glossaryStore.saveAsync(this.glossary.current);
+    this.refreshGlossaryState();
+    this.hideDeleteDialog();
   }
 
   onItemFormCancel(): void {
@@ -230,6 +257,11 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   render() {
+    const dialogContentProps = {
+      type: DialogType.normal,
+      title: "Delete item",
+      subText: `Are you sure you want to delete this item: ${this.state.selectedItem?.original}?`
+    };
     const notificationStackProps: IStackProps = {
       styles: {
         root: {
@@ -291,7 +323,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
                     target={this.state.glossary.target.name}
                     items={this.state.itemsToShow}
                     onRowClick={this.insertWord}
-                    onEditRow={this.onEditWord}
+                    onEditRow={this.onEditItem}
+                    onDeleteRow={this.onDeleteItem}
                     notify={this.setNotification}
                   ></GlossaryTable>
                 </Stack.Item>
@@ -299,6 +332,18 @@ export default class App extends React.Component<IAppProps, IAppState> {
             </Stack.Item>
           )}
         </Stack>
+
+        <Dialog
+          hidden={this.state.hideDeleteDialog}
+          onDismiss={this.hideDeleteDialog}
+          dialogContentProps={dialogContentProps}
+          modalProps={{ isBlocking: true }}
+        >
+          <DialogFooter>
+            <PrimaryButton onClick={this.confirmDeletion} text="Delete" />
+            <DefaultButton onClick={this.hideDeleteDialog} text="Cancel" />
+          </DialogFooter>
+        </Dialog>
 
         <Stack {...notificationStackProps}>
           {!!this.state.notification.message && (

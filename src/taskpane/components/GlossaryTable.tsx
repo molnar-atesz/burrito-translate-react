@@ -11,7 +11,7 @@ import {
   ColumnActionsMode
 } from "office-ui-fabric-react/lib/DetailsList";
 import * as React from "react";
-import { IStackProps, IStackTokens, Stack } from "office-ui-fabric-react/lib/Stack";
+import { Stack } from "office-ui-fabric-react/lib/Stack";
 import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react/lib/Tooltip";
 import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 import { IIconProps } from "office-ui-fabric-react/lib/Icon";
@@ -27,6 +27,7 @@ export interface IGlossaryTableProps {
   items: IGlossaryItem[];
   onRowClick(item: IGlossaryItem): Promise<any>;
   onEditRow(item: IGlossaryItem): void;
+  onDeleteRow(item: IGlossaryItem): void;
   notify(message: string, messageType?: MessageBarType): any;
 }
 
@@ -34,10 +35,6 @@ export interface IGlossaryTableState {
   items: IGlossaryItem[];
   columns: IColumn[];
 }
-
-const stackTokens: IStackTokens = {
-  childrenGap: 5
-};
 
 const theme = getTheme();
 
@@ -79,33 +76,22 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
   public render() {
     const { items, columns } = this.state;
-    const stackProps: IStackProps = {
-      root: {
-        style: {
-          padding: "10px"
-        }
-      }
-    };
 
     return (
-      <Stack tokens={stackTokens} {...stackProps}>
-        <Stack.Item align="stretch">
-          <DetailsList
-            items={items}
-            columns={columns}
-            getKey={this._getKey}
-            compact={true}
-            setKey="none"
-            selection={this._selection}
-            layoutMode={DetailsListLayoutMode.fixedColumns}
-            checkboxVisibility={CheckboxVisibility.hidden}
-            selectionPreservedOnEmptyClick={false}
-            isHeaderVisible={true}
-            onRenderRow={this._onRenderRow}
-            onRenderItemColumn={this._onRenderItemColumn}
-          />
-        </Stack.Item>
-      </Stack>
+      <DetailsList
+        items={items}
+        columns={columns}
+        getKey={this._getKey}
+        compact={true}
+        setKey="none"
+        selection={this._selection}
+        layoutMode={DetailsListLayoutMode.fixedColumns}
+        checkboxVisibility={CheckboxVisibility.hidden}
+        selectionPreservedOnEmptyClick={false}
+        isHeaderVisible={true}
+        onRenderRow={this._onRenderRow}
+        onRenderItemColumn={this._onRenderItemColumn}
+      />
     );
   }
 
@@ -127,8 +113,8 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         key: "commandCol",
         name: "",
         fieldName: "command",
-        minWidth: 35,
-        maxWidth: 35,
+        minWidth: 70,
+        maxWidth: 70,
         columnActionsMode: ColumnActionsMode.disabled,
         isResizable: false,
         data: "string"
@@ -208,16 +194,25 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       );
     } else if (column.fieldName === "command") {
       return (
-        <IconButton
-          iconProps={{ iconName: "Edit" }}
-          data-selection-disabled={true}
-          onClick={_ => {
-            this.props.onEditRow(item);
-          }}
-        />
+        <Stack horizontal horizontalAlign="space-between">
+          <IconButton
+            iconProps={{ iconName: "Edit" }}
+            data-selection-disabled={true}
+            onClick={_ => {
+              this.props.onEditRow(item);
+            }}
+          />
+          <IconButton
+            iconProps={{ iconName: "Delete" }}
+            data-selection-disabled={true}
+            onClick={_ => {
+              this.props.onDeleteRow(item);
+            }}
+          />
+        </Stack>
       );
     } else {
-      return <span>{fieldContent}</span>;
+      return (<span>{fieldContent}</span>);
     }
   };
 }
