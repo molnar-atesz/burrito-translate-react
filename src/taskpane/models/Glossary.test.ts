@@ -43,7 +43,7 @@ describe("Glossary", () => {
 
       const act = () => glossary.addItem(undefined);
 
-      expect(act).toThrow("Item should not be empty!");
+      expect(act).toThrow("Invalid argument: 'newItem' is required");
     });
 
     test("should throw error if 'original' is empty string", () => {
@@ -145,6 +145,25 @@ describe("Glossary", () => {
       const act = () => glossary.addRange(undefined);
 
       expect(act).toThrow("Invalid argument: 'newItems' is required");
+    });
+  });
+
+  describe('delete', () => {
+    test('should remove item from glossary based on its original word', () => {
+      const glossary = createGlossaryWithWords();
+      const itemToDelete = glossary.items[0];
+
+      glossary.deleteItem(itemToDelete.original);
+
+      expect(glossary.items).not.toContain(itemToDelete);
+    });
+
+    test("should throw error on not existing word", () => {
+      const glossary = createEmptyGlossary();
+
+      const act = () => glossary.deleteItem("not-existing-word");
+
+      expect(act).toThrow("Not found: 'not-existing-word'");
     });
   });
 

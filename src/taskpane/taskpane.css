@@ -5,9 +5,26 @@
 
 html,
 body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+  width           : 100%;
+  height          : 100%;
+  margin          : 0;
+  padding         : 0;
   background-color: white;
+}
+
+.noteAvailable:before {
+  content    : "";
+  position   : absolute;
+  top        : 0;
+  right      : 0;
+  border-top : 8px solid rgb(0, 120, 212);
+  border-left: 8px solid white;
+  width      : 0;
+}
+
+.noteAvailable {
+  position      : relative;
+  overflow      : hidden;
+  cursor        : help;
+  vertical-align: middle;
 }

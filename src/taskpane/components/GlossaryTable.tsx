@@ -8,18 +8,18 @@ import {
   CheckboxVisibility,
   IDetailsListProps,
   IDetailsRowStyles,
-  ColumnActionsMode
+  ColumnActionsMode,
+  IDetailsHeaderProps
 } from "office-ui-fabric-react/lib/DetailsList";
 import * as React from "react";
-import { IStackProps, IStackTokens, Stack } from "office-ui-fabric-react/lib/Stack";
-import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react/lib/Tooltip";
+import { Stack } from "office-ui-fabric-react/lib/Stack";
 import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
-import { IIconProps } from "office-ui-fabric-react/lib/Icon";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
 import { getTheme } from "office-ui-fabric-react/lib/Styling";
 
 import { IGlossaryItem } from "../types/glossary";
 import { copyAndSortItems } from "../utils/helpers";
+import { HoverCard, HoverCardType, IPlainCardProps, IRenderFunction, Sticky, StickyPositionType, Text } from "office-ui-fabric-react";
 
 export interface IGlossaryTableProps {
   source: string;
@@ -27,6 +27,7 @@ export interface IGlossaryTableProps {
   items: IGlossaryItem[];
   onRowClick(item: IGlossaryItem): Promise<any>;
   onEditRow(item: IGlossaryItem): void;
+  onDeleteRow(item: IGlossaryItem): void;
   notify(message: string, messageType?: MessageBarType): any;
 }
 
@@ -34,10 +35,6 @@ export interface IGlossaryTableState {
   items: IGlossaryItem[];
   columns: IColumn[];
 }
-
-const stackTokens: IStackTokens = {
-  childrenGap: 5
-};
 
 const theme = getTheme();
 
@@ -47,13 +44,8 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
   constructor(props) {
     super(props);
-
     this._selection = new Selection({
-      onSelectionChanged: async () => {
-        const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
-        await this.props.onRowClick(selectionDetails);
-      },
-      selectionMode: SelectionMode.single
+      onSelectionChanged: this._onSelectedItemChanged
     });
 
     this.state = {
@@ -67,6 +59,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       this.setState({
         items: [...this.props.items]
       });
+      this._selection.setAllSelected(false);
     }
   }
 
@@ -79,34 +72,36 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
 
   public render() {
     const { items, columns } = this.state;
-    const stackProps: IStackProps = {
-      root: {
-        style: {
-          padding: "10px"
-        }
-      }
-    };
 
     return (
-      <Stack tokens={stackTokens} {...stackProps}>
-        <Stack.Item align="stretch">
-          <DetailsList
-            items={items}
-            columns={columns}
-            getKey={this._getKey}
-            compact={true}
-            setKey="none"
-            selection={this._selection}
-            layoutMode={DetailsListLayoutMode.fixedColumns}
-            checkboxVisibility={CheckboxVisibility.hidden}
-            selectionPreservedOnEmptyClick={false}
-            isHeaderVisible={true}
-            onRenderRow={this._onRenderRow}
-            onRenderItemColumn={this._onRenderItemColumn}
-          />
-        </Stack.Item>
-      </Stack>
+      <DetailsList
+        items={items}
+        columns={columns}
+        getKey={this._getKey}
+        compact={true}
+        setKey="none"
+        selection={this._selection}
+        layoutMode={DetailsListLayoutMode.justified}
+        checkboxVisibility={CheckboxVisibility.hidden}
+        selectionPreservedOnEmptyClick={false}
+        isHeaderVisible={true}
+        onRenderRow={this._onRenderRow}
+        onRenderItemColumn={this._onRenderItemColumn}
+        onRenderDetailsHeader={this._onRenderDetailsHeader}
+        selectionMode={SelectionMode.single}
+      />
     );
+  }
+
+  private _onSelectedItemChanged = async () => {
+    if (this._selection.getSelectedCount() === 1) {
+      const selectionDetails = this._selection.getSelection()[0] as IGlossaryItem;
+      await this.props.onRowClick(selectionDetails);
+      setTimeout(() => {
+        // if it called without timeout it fires insertion again
+        this._selection.setAllSelected(false);
+      }, 500);
+    }
   }
 
   private _getColumns(): IColumn[] {
@@ -114,21 +109,11 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       this._getLanguageColumn(this.props.source, true),
       this._getLanguageColumn(this.props.target),
       {
-        key: "noteCol",
-        name: "",
-        fieldName: "note",
-        minWidth: 35,
-        maxWidth: 35,
-        columnActionsMode: ColumnActionsMode.disabled,
-        isResizable: false,
-        data: "string"
-      },
-      {
         key: "commandCol",
         name: "",
         fieldName: "command",
-        minWidth: 35,
-        maxWidth: 35,
+        minWidth: 70,
+        maxWidth: 70,
         columnActionsMode: ColumnActionsMode.disabled,
         isResizable: false,
         data: "string"
@@ -180,44 +165,95 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     });
   };
 
+  private _onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
+    if (!props) {
+      return null;
+    }
+    return (
+      <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced>
+        {defaultRender!({
+          ...props,
+        })}
+      </Sticky>
+    );
+  }
+
   private _onRenderRow: IDetailsListProps["onRenderRow"] = props => {
-    const customStyles: Partial<IDetailsRowStyles> = {};
+    const alternatingColors: Partial<IDetailsRowStyles> = {
+      cell: {
+        verticalAlign: "middle"
+      }
+    };
     if (props) {
-      customStyles.cell = { fontSize: "12px" };
       if (props.itemIndex % 2 === 0) {
-        // Every other row renders with a different background color
-        customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
+        alternatingColors.root = { backgroundColor: theme.palette.themeLighterAlt };
       }
 
-      return <DetailsRow {...props} styles={customStyles} />;
+      return <DetailsRow {...props} styles={alternatingColors} />;
     }
     return null;
   };
 
-  private _onRenderItemColumn = (item: IGlossaryItem, index: number, column: IColumn) => {
+  private _onRenderItemColumn = (item: IGlossaryItem, _: number, column: IColumn) => {
     const fieldContent = item[column.fieldName as keyof IGlossaryItem] as string;
-    const commentIcon: IIconProps = { iconName: "Comment" };
-    const tooltipId = `note${index}`;
-    const hostStyles: Partial<ITooltipHostStyles> = { root: { display: "inline-block" } };
 
-    if (column.fieldName === "note" && !!fieldContent) {
-      return (
-        <TooltipHost content={fieldContent} id={tooltipId} styles={hostStyles}>
-          <IconButton iconProps={commentIcon} aria-describedby={tooltipId} data-selection-disabled={true} />
-        </TooltipHost>
-      );
-    } else if (column.fieldName === "command") {
-      return (
-        <IconButton
-          iconProps={{ iconName: "Edit" }}
-          data-selection-disabled={true}
-          onClick={_ => {
-            this.props.onEditRow(item);
-          }}
-        />
-      );
+    if (column.fieldName === "command") {
+      return this._getCommandField(item);
     } else {
-      return <span>{fieldContent}</span>;
+      return this._getItemField(item, fieldContent);
     }
   };
+
+  private _getCommandField(item: IGlossaryItem) {
+    return <Stack horizontal horizontalAlign="space-between" data-selection-disabled={true}>
+      <IconButton
+        iconProps={{ iconName: "Edit" }}
+        data-selection-disabled={true}
+        onClick={_ => {
+          this.props.onEditRow(item);
+        }} />
+      <IconButton
+        iconProps={{ iconName: "Delete" }}
+        data-selection-disabled={true}
+        onClick={_ => {
+          this.props.onDeleteRow(item);
+        }} />
+    </Stack>;
+  }
+
+  private _getItemField(item: IGlossaryItem, fieldContent: string): JSX.Element {
+    if (!!item.note) {
+      return this._getItemFieldWithNote(item, fieldContent);
+    } else {
+      return (
+        <div>{fieldContent}</div>
+      );
+    }
+  }
+
+  private _getItemFieldWithNote(item: IGlossaryItem, fieldContent: string) {
+    const noteCardProps: IPlainCardProps = {
+      renderData: item.note,
+      onRenderPlainCard: this._onRenderPlainCard
+    };
+    return (<HoverCard
+      cardDismissDelay={1000}
+      cardOpenDelay={1000}
+      type={HoverCardType.plain}
+      plainCardProps={noteCardProps}
+      className="noteAvailable"
+    >
+      <div>
+        <Text block>{fieldContent}</Text>
+      </div>
+    </HoverCard>);
+  }
+
+  private _onRenderPlainCard = (note: string): JSX.Element => {
+    return (
+      <div style={{ padding: "10px", backgroundColor: theme.palette.themeDarkAlt, color: theme.palette.themeLight }}>
+        {note}
+      </div>
+    );
+  }
 }

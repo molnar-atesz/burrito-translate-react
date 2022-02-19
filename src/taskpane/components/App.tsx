@@ -26,6 +26,7 @@ import NewGlossary from "./NewGlossary";
 import ImportCsv from "./ImportCsv";
 import Search from "./Search";
 import DocumentService from "../services/DocumentService";
+import { DefaultButton, Dialog, DialogFooter, DialogType, PrimaryButton, ScrollablePane, Sticky, StickyPositionType } from "office-ui-fabric-react";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -40,6 +41,7 @@ export interface IAppState {
   glossary?: IGlossary;
   notification: INotification;
   showItemForm: boolean;
+  hideDeleteDialog: boolean;
   itemFormMode: ItemFormMode;
   selectedItem: IGlossaryItem;
   import: boolean;
@@ -63,6 +65,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
         messageBarType: MessageBarType.info
       },
       showItemForm: false,
+      hideDeleteDialog: true,
       itemFormMode: ItemFormMode.create,
       selectedItem: null,
       import: false,
@@ -79,7 +82,10 @@ export default class App extends React.Component<IAppProps, IAppState> {
   private bindMethodsToThis() {
     this.onItemFormSubmit = this.onItemFormSubmit.bind(this);
     this.onItemFormCancel = this.onItemFormCancel.bind(this);
-    this.onEditWord = this.onEditWord.bind(this);
+    this.onEditItem = this.onEditItem.bind(this);
+    this.onDeleteItem = this.onDeleteItem.bind(this);
+    this.hideDeleteDialog = this.hideDeleteDialog.bind(this);
+    this.confirmDeletion = this.confirmDeletion.bind(this);
     this.insertWord = this.insertWord.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.clearNotification = this.clearNotification.bind(this);
@@ -101,12 +107,33 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
-  onEditWord(item: IGlossaryItem): void {
+  onEditItem(item: IGlossaryItem): void {
     this.setState({
       selectedItem: item,
       showItemForm: true,
       itemFormMode: ItemFormMode.edit
     });
+  }
+
+  onDeleteItem(item: IGlossaryItem): void {
+    this.setState({
+      selectedItem: item,
+      hideDeleteDialog: false
+    });
+  }
+
+  hideDeleteDialog(): void {
+    this.setState({
+      selectedItem: null,
+      hideDeleteDialog: true
+    });
+  }
+
+  async confirmDeletion(): Promise<void> {
+    this.glossary.current.deleteItem(this.state.selectedItem.original);
+    await this.glossaryStore.saveAsync(this.glossary.current);
+    this.refreshGlossaryState();
+    this.hideDeleteDialog();
   }
 
   onItemFormCancel(): void {
@@ -230,6 +257,11 @@ export default class App extends React.Component<IAppProps, IAppState> {
   }
 
   render() {
+    const dialogContentProps = {
+      type: DialogType.normal,
+      title: "Delete item",
+      subText: `Are you sure you want to delete this item: ${this.state.selectedItem?.original}?`
+    };
     const notificationStackProps: IStackProps = {
       styles: {
         root: {
@@ -243,40 +275,40 @@ export default class App extends React.Component<IAppProps, IAppState> {
     };
 
     return (
-      <div>
-        <Stack>
-          {!!this.state.glossary && (
-            <Stack.Item align="stretch">
-              <ControlPanel onNew={this.onNewItem} onSave={this.onSaveGlossary} onImport={this.onImport} />
-            </Stack.Item>
-          )}
+      <ScrollablePane>
+        <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true}>
+          <Stack>
+            {!!this.state.glossary && (
+              <Stack.Item align="stretch">
+                <ControlPanel onNew={this.onNewItem} onSave={this.onSaveGlossary} onImport={this.onImport} />
+              </Stack.Item>
+            )}
 
-          {!!this.state.showItemForm && (
-            <Stack.Item align="stretch" tokens={{ margin: 20 }}>
-              <AddEdit
-                onSubmit={this.onItemFormSubmit}
-                onCancel={this.onItemFormCancel}
-                notify={this.setNotification}
-                item={this.state.selectedItem}
-              ></AddEdit>
-            </Stack.Item>
-          )}
+            {!!this.state.showItemForm && (
+              <Stack.Item align="stretch" tokens={{ margin: 20 }}>
+                <AddEdit
+                  onSubmit={this.onItemFormSubmit}
+                  onCancel={this.onItemFormCancel}
+                  notify={this.setNotification}
+                  item={this.state.selectedItem}
+                ></AddEdit>
+              </Stack.Item>
+            )}
 
-          {!!this.state.import && (
-            <Stack.Item align="center">
-              <ImportCsv onImported={this.onImported} notify={this.setNotification} />
-            </Stack.Item>
-          )}
+            {!!this.state.import && (
+              <Stack.Item align="center">
+                <ImportCsv onImported={this.onImported} notify={this.setNotification} />
+              </Stack.Item>
+            )}
 
-          {!this.state.glossary &&
-            <Stack.Item align="center">
-              <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>
-            </Stack.Item>
-          }
+            {!this.state.glossary &&
+              <Stack.Item align="center">
+                <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>
+              </Stack.Item>
+            }
 
-          {this.state.glossary && (
-            <Stack.Item align="stretch">
-              <Stack>
+            {this.state.glossary && (
+              <>
                 <Stack.Item align="center">
                   <h2 className="ms-font-xl ms-fontWeight-semilight ms-fontColor-neutralPrimary ms-u-slideUpIn20">
                     Glossary
@@ -285,34 +317,58 @@ export default class App extends React.Component<IAppProps, IAppState> {
                 <Stack.Item align="stretch">
                   <Search onSearch={this.search}></Search>
                 </Stack.Item>
-                <Stack.Item align="stretch">
-                  <GlossaryTable
-                    source={this.state.glossary.source.name}
-                    target={this.state.glossary.target.name}
-                    items={this.state.itemsToShow}
-                    onRowClick={this.insertWord}
-                    onEditRow={this.onEditWord}
-                    notify={this.setNotification}
-                  ></GlossaryTable>
-                </Stack.Item>
-              </Stack>
-            </Stack.Item>
-          )}
-        </Stack>
+              </>
+            )}
 
-        <Stack {...notificationStackProps}>
-          {!!this.state.notification.message && (
-            <MessageBar
-              messageBarType={this.state.notification.messageBarType}
-              isMultiline={true}
-              onDismiss={this.clearNotification}
-              dismissButtonAriaLabel="Close"
-            >
-              {this.state.notification.message}
-            </MessageBar>
-          )}
-        </Stack>
-      </div>
+          </Stack>
+        </Sticky>
+
+        {this.state.glossary && (
+          <Stack>
+            <Stack.Item align="stretch">
+              <GlossaryTable
+                source={this.state.glossary.source.name}
+                target={this.state.glossary.target.name}
+                items={this.state.itemsToShow}
+                onRowClick={this.insertWord}
+                onEditRow={this.onEditItem}
+                onDeleteRow={this.onDeleteItem}
+                notify={this.setNotification}
+              >
+              </GlossaryTable>
+            </Stack.Item>
+          </Stack>
+        )}
+
+        <Sticky stickyPosition={StickyPositionType.Footer}>
+          <Stack {...notificationStackProps}>
+            {!!this.state.notification.message && (
+              <MessageBar
+                messageBarType={this.state.notification.messageBarType}
+                isMultiline={true}
+                onDismiss={this.clearNotification}
+                dismissButtonAriaLabel="Close"
+              >
+                {this.state.notification.message}
+              </MessageBar>
+            )}
+          </Stack>
+        </Sticky>
+
+        <Dialog
+          hidden={this.state.hideDeleteDialog}
+          onDismiss={this.hideDeleteDialog}
+          dialogContentProps={dialogContentProps}
+          modalProps={{ isBlocking: true }}
+        >
+          <DialogFooter>
+            <PrimaryButton onClick={this.confirmDeletion} text="Delete" />
+            <DefaultButton onClick={this.hideDeleteDialog} text="Cancel" />
+          </DialogFooter>
+        </Dialog>
+
+
+      </ScrollablePane>
     );
   }
 }
