@@ -1,5 +1,5 @@
 export default class DocumentService {
-  constructor() {}
+  constructor() { }
 
   public async insertText(text: string): Promise<boolean> {
     await Word.run(async context => {
@@ -16,6 +16,6 @@ export default class DocumentService {
       }
       return false;
     });
-    return false;
+    return true;
   }
 }
