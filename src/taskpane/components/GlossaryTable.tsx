@@ -8,7 +8,8 @@ import {
   CheckboxVisibility,
   IDetailsListProps,
   IDetailsRowStyles,
-  ColumnActionsMode
+  ColumnActionsMode,
+  IDetailsHeaderProps
 } from "office-ui-fabric-react/lib/DetailsList";
 import * as React from "react";
 import { Stack } from "office-ui-fabric-react/lib/Stack";
@@ -18,7 +19,7 @@ import { getTheme } from "office-ui-fabric-react/lib/Styling";
 
 import { IGlossaryItem } from "../types/glossary";
 import { copyAndSortItems } from "../utils/helpers";
-import { HoverCard, HoverCardType, IPlainCardProps, Text } from "office-ui-fabric-react";
+import { HoverCard, HoverCardType, IPlainCardProps, IRenderFunction, Sticky, StickyPositionType, Text } from "office-ui-fabric-react";
 
 export interface IGlossaryTableProps {
   source: string;
@@ -86,6 +87,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         isHeaderVisible={true}
         onRenderRow={this._onRenderRow}
         onRenderItemColumn={this._onRenderItemColumn}
+        onRenderDetailsHeader={this._onRenderDetailsHeader}
         selectionMode={SelectionMode.single}
       />
     );
@@ -162,6 +164,19 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       items: newItems
     });
   };
+
+  private _onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
+    if (!props) {
+      return null;
+    }
+    return (
+      <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced>
+        {defaultRender!({
+          ...props,
+        })}
+      </Sticky>
+    );
+  }
 
   private _onRenderRow: IDetailsListProps["onRenderRow"] = props => {
     const alternatingColors: Partial<IDetailsRowStyles> = {
