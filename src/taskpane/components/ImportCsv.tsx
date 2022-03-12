@@ -40,7 +40,10 @@ export default class ImportCsv extends React.Component<IImportCsvProps, any> {
   public render(): React.ReactNode {
     return (
       <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
-        <CSVReader onDrop={this._handleOnDrop} onError={this._handleOnError} addRemoveButton accept="text/csv, .csv">
+        <CSVReader onDrop={this._handleOnDrop}
+          onError={this._handleOnError}
+          addRemoveButton
+          accept="text/csv, .csv">
           <span>Drop CSV file here or click to upload</span>
         </CSVReader>
       </Stack>
