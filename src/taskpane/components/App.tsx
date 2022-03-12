@@ -27,6 +27,7 @@ import ImportCsv from "./ImportCsv";
 import Search from "./Search";
 import DocumentService from "../services/DocumentService";
 import { DefaultButton, Dialog, DialogFooter, DialogType, PrimaryButton, ScrollablePane, Sticky, StickyPositionType } from "office-ui-fabric-react";
+import { CSVDownloader } from "react-papaparse";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -53,6 +54,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
   private readonly serializer: IGlossaryXmlSerializer;
   private readonly documentService: DocumentService;
   private glossary: React.MutableRefObject<IGlossary>;
+  private csvDownloderButton: CSVDownloader;
 
   constructor(props) {
     super(props);
@@ -95,6 +97,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     this.onCreateGlossary = this.onCreateGlossary.bind(this);
     this.onImport = this.onImport.bind(this);
     this.onImported = this.onImported.bind(this);
+    this.onExport = this.onExport.bind(this);
     this.search = this.search.bind(this);
   }
 
@@ -238,6 +241,23 @@ export default class App extends React.Component<IAppProps, IAppState> {
     return true;
   }
 
+  onExport(): boolean {
+    const exportData = this.state.glossary.items.map(item => {
+      return {
+        original: item.original,
+        translation: item.translation,
+        note: item.note
+      }
+    });
+    this.csvDownloderButton.download(exportData,
+      'glossary-export',
+      true,
+      {
+        header: false
+      });
+    return true;
+  }
+
   async insertWord(item: IGlossaryItem) {
     const success = await this.documentService.insertText(item.translation);
     if (!success) {
@@ -280,7 +300,10 @@ export default class App extends React.Component<IAppProps, IAppState> {
           <Stack>
             {!!this.state.glossary && (
               <Stack.Item align="stretch">
-                <ControlPanel onNew={this.onNewItem} onSave={this.onSaveGlossary} onImport={this.onImport} />
+                <ControlPanel onNew={this.onNewItem}
+                  onSave={this.onSaveGlossary}
+                  onImport={this.onImport}
+                  onExport={this.onExport} />
               </Stack.Item>
             )}
 
@@ -367,6 +390,14 @@ export default class App extends React.Component<IAppProps, IAppState> {
           </DialogFooter>
         </Dialog>
 
+        {!!this.state.glossary && (
+          <CSVDownloader
+            ref={(exporter) => (this.csvDownloderButton = exporter)}
+            style={{
+              display: 'none'
+            }}
+          >Export glossary</CSVDownloader>
+        )}
 
       </ScrollablePane>
     );
