@@ -27,4 +27,5 @@ body {
   overflow      : hidden;
   cursor        : help;
   vertical-align: middle;
+  max-width     : 150px;
 }
