@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -11,7 +12,17 @@ import {
   ColumnActionsMode,
   IDetailsHeaderProps
 } from "office-ui-fabric-react/lib/DetailsList";
-import * as React from "react";
+import {
+  DirectionalHint,
+  HoverCard,
+  HoverCardType,
+  IPlainCardProps,
+  IRenderFunction,
+  Sticky,
+  StickyPositionType,
+  Text
+} from "office-ui-fabric-react";
+
 import { Stack } from "office-ui-fabric-react/lib/Stack";
 import { MessageBarType } from "office-ui-fabric-react/lib/MessageBar";
 import { IconButton } from "office-ui-fabric-react/lib/Button";
@@ -19,7 +30,7 @@ import { getTheme } from "office-ui-fabric-react/lib/Styling";
 
 import { IGlossaryItem } from "../types/glossary";
 import { copyAndSortItems } from "../utils/helpers";
-import { HoverCard, HoverCardType, IPlainCardProps, IRenderFunction, Sticky, StickyPositionType, Text } from "office-ui-fabric-react";
+
 
 export interface IGlossaryTableProps {
   source: string;
@@ -200,7 +211,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     if (column.fieldName === "command") {
       return this._getCommandField(item);
     } else {
-      return this._getItemField(item, fieldContent);
+      return this._getItemField(item, fieldContent, column.fieldName);
     }
   };
 
@@ -221,8 +232,8 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     </Stack>;
   }
 
-  private _getItemField(item: IGlossaryItem, fieldContent: string): JSX.Element {
-    if (!!item.note) {
+  private _getItemField(item: IGlossaryItem, fieldContent: string, fieldName: string): JSX.Element {
+    if (!!item.note && fieldName === "original") {
       return this._getItemFieldWithNote(item, fieldContent);
     } else {
       return (
@@ -234,7 +245,8 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
   private _getItemFieldWithNote(item: IGlossaryItem, fieldContent: string) {
     const noteCardProps: IPlainCardProps = {
       renderData: item.note,
-      onRenderPlainCard: this._onRenderPlainCard
+      onRenderPlainCard: this._onRenderPlainCard,
+      directionalHint: DirectionalHint.topRightEdge
     };
     return (<HoverCard
       cardDismissDelay={1000}
