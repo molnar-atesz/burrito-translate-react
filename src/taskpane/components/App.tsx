@@ -23,10 +23,19 @@ import ControlPanel from "./ControlPanel";
 import AddEdit from "./AddEdit";
 import GlossaryTable from "./GlossaryTable";
 import NewGlossary from "./NewGlossary";
-import ImportCsv from "./ImportCsv";
+import ImportCsv, { ImportMethod } from "./ImportCsv";
 import Search from "./Search";
 import DocumentService from "../services/DocumentService";
-import { DefaultButton, Dialog, DialogFooter, DialogType, PrimaryButton, ScrollablePane, Sticky, StickyPositionType } from "office-ui-fabric-react";
+import {
+  DefaultButton,
+  Dialog,
+  DialogFooter,
+  DialogType,
+  PrimaryButton,
+  ScrollablePane,
+  Sticky,
+  StickyPositionType
+} from "office-ui-fabric-react";
 import { CSVDownloader } from "react-papaparse";
 
 export interface IAppProps {
@@ -216,12 +225,21 @@ export default class App extends React.Component<IAppProps, IAppState> {
       });
   }
 
-  async onImported(items: IGlossaryItem[]) {
+  async onImported(items: IGlossaryItem[], importMethod: ImportMethod) {
+    if (importMethod === ImportMethod.Replace) {
+      this.glossary.current.clear();
+    }
     this.glossary.current.addRange(items);
     await this.glossaryStore.saveAsync(this.glossary.current);
 
     this.setNotification("Glossary updated", MessageBarType.success);
     this.refreshGlossaryState();
+    this.setState({
+      import: false
+    });
+  }
+
+  onCancelImport() {
     this.setState({
       import: false
     });
@@ -247,14 +265,11 @@ export default class App extends React.Component<IAppProps, IAppState> {
         original: item.original,
         translation: item.translation,
         note: item.note
-      }
+      };
     });
-    this.csvDownloderButton.download(exportData,
-      'glossary-export',
-      true,
-      {
-        header: false
-      });
+    this.csvDownloderButton.download(exportData, "glossary-export", true, {
+      header: false
+    });
     return true;
   }
 
@@ -300,10 +315,12 @@ export default class App extends React.Component<IAppProps, IAppState> {
           <Stack>
             {!!this.state.glossary && (
               <Stack.Item align="stretch">
-                <ControlPanel onNew={this.onNewItem}
+                <ControlPanel
+                  onNew={this.onNewItem}
                   onSave={this.onSaveGlossary}
                   onImport={this.onImport}
-                  onExport={this.onExport} />
+                  onExport={this.onExport}
+                />
               </Stack.Item>
             )}
 
@@ -320,15 +337,15 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
             {!!this.state.import && (
               <Stack.Item align="center">
-                <ImportCsv onImported={this.onImported} notify={this.setNotification} />
+                <ImportCsv onImported={this.onImported} notify={this.setNotification} onCancel={this.onCancelImport} />
               </Stack.Item>
             )}
 
-            {!this.state.glossary &&
+            {!this.state.glossary && (
               <Stack.Item align="center">
                 <NewGlossary createGlossary={this.onCreateGlossary}></NewGlossary>
               </Stack.Item>
-            }
+            )}
 
             {this.state.glossary && (
               <>
@@ -342,7 +359,6 @@ export default class App extends React.Component<IAppProps, IAppState> {
                 </Stack.Item>
               </>
             )}
-
           </Stack>
         </Sticky>
 
@@ -357,8 +373,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
                 onEditRow={this.onEditItem}
                 onDeleteRow={this.onDeleteItem}
                 notify={this.setNotification}
-              >
-              </GlossaryTable>
+              ></GlossaryTable>
             </Stack.Item>
           </Stack>
         )}
@@ -392,13 +407,14 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
         {!!this.state.glossary && (
           <CSVDownloader
-            ref={(exporter) => (this.csvDownloderButton = exporter)}
+            ref={exporter => (this.csvDownloderButton = exporter)}
             style={{
-              display: 'none'
+              display: "none"
             }}
-          >Export glossary</CSVDownloader>
+          >
+            Export glossary
+          </CSVDownloader>
         )}
-
       </ScrollablePane>
     );
   }
