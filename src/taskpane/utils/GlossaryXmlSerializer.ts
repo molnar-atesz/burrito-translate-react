@@ -17,7 +17,6 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
       throw new Error("Invalid argument: xmlns is required");
     }
     this.XMLNS = xmlns;
-    this.escapeXml = this.escapeXml.bind(this);
   }
 
   public serialize(glossary: IGlossary): string {
@@ -80,9 +79,9 @@ export default class GlossaryXmlSerializer implements IGlossaryXmlSerializer {
     return itemsNode;
   }
 
-  private escapeXml(text: string): string {
+  private escapeXml = (text: string): string => {
     let that = this;
-    return text.replace(/[<>&"']/g, function(ch) {
+    return text.replace(/[<>&"']/g, function (ch) {
       return that.XML_CHAR_MAP[ch];
     });
   }
