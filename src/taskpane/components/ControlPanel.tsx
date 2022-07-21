@@ -46,7 +46,7 @@ export default class ControlPanel extends React.Component<IControlPanelProps> {
     ];
   }
 
-  public render() {
+  public render(): React.ReactNode {
     return (
       <CommandBar items={this._menuItems} ariaLabel="Use left and right arrow keys to navigate between commands" />
     );

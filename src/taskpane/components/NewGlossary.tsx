@@ -28,27 +28,25 @@ export default class NewGlossary extends React.Component<INewGlossaryProps, INew
       source: LANGUAGES[0],
       target: LANGUAGES[1]
     };
-    this._onSourceSelection = this._onSourceSelection.bind(this);
-    this._onTargetSelection = this._onTargetSelection.bind(this);
   }
 
-  private _onCreate() {
+  private _onCreate = (): void => {
     this.props.createGlossary(this.state.source, this.state.target);
-  }
+  };
 
-  private _onSourceSelection(_: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void {
+  private _onSourceSelection = (_: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     this.setState({
       source: item.data
     });
-  }
+  };
 
-  private _onTargetSelection(_: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void {
+  private _onTargetSelection = (_: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     this.setState({
       target: item.data
     });
-  }
+  };
 
-  render() {
+  public render(): React.ReactNode {
     return (
       <Stack verticalAlign="center" tokens={VERTICAL_STACK_TOKENS}>
         <Dropdown

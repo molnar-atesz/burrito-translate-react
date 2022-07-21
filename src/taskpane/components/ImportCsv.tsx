@@ -28,11 +28,9 @@ export default class ImportCsv extends React.Component<IImportCsvProps, any> {
       importMethod: ImportMethod.Append,
       hideDialog: true
     };
-    this._handleOnDrop = this._handleOnDrop.bind(this);
-    this._handleOnError = this._handleOnError.bind(this);
   }
 
-  private async _handleOnDrop(data: any[]) {
+  private _handleOnDrop = async (data: any[]): Promise<void> => {
     const items: IGlossaryItem[] =
       data?.map(item => {
         return {
@@ -45,30 +43,30 @@ export default class ImportCsv extends React.Component<IImportCsvProps, any> {
     this.setState({
       importedItems: [...items]
     });
-  }
+  };
 
-  private _handleOnError(err, file) {
+  private _handleOnError = (err, file): void => {
     this.props.notify(`File import failed: ${file}`, MessageBarType.error);
     console.error(err);
-  }
+  };
 
-  _onSave = async (): Promise<void> => {
+  private _onSave = async (): Promise<void> => {
     await this.props.onImported(this.state.importedItems, this.state.importMethod);
   };
 
-  _onImportMethodChange = (_: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void => {
+  private _onImportMethodChange = (_: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption): void => {
     this.setState({
       importMethod: ImportMethod[option.text]
     });
   };
 
-  _showDialog = () => {
+  private _showDialog = (): void => {
     this.setState({
       hideDialog: false
     });
   };
 
-  _hideDialog = () => {
+  private _hideDialog = (): void => {
     this.setState({
       hideDialog: true
     });

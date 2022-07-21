@@ -17,10 +17,6 @@ export default class Search extends React.Component<ISearchProps, ISearchState> 
   constructor(props) {
     super(props);
 
-    this._showSearchOptions = this._showSearchOptions.bind(this);
-    this._caseSensitivityChanged = this._caseSensitivityChanged.bind(this);
-    this._wholeWordChanged = this._wholeWordChanged.bind(this);
-
     this.state = {
       keyword: "",
       showSearchOptions: false,
@@ -31,7 +27,7 @@ export default class Search extends React.Component<ISearchProps, ISearchState> 
     };
   }
 
-  render() {
+  public render = (): React.ReactNode => {
     const stackProps: IStackProps = {
       root: {
         style: {
@@ -72,15 +68,15 @@ export default class Search extends React.Component<ISearchProps, ISearchState> 
         )}
       </Stack>
     );
-  }
+  };
 
-  private _showSearchOptions() {
+  private _showSearchOptions = (): void => {
     this.setState({
       showSearchOptions: !this.state.showSearchOptions
     });
-  }
+  };
 
-  private _caseSensitivityChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
+  private _caseSensitivityChanged = (_: React.FormEvent<HTMLElement>, isChecked: boolean): void => {
     let options = { ...this.state.searchOptions };
     options.caseSensitive = isChecked;
 
@@ -88,9 +84,9 @@ export default class Search extends React.Component<ISearchProps, ISearchState> 
       searchOptions: options
     });
     this.props.onSearch(this.state.keyword, options);
-  }
+  };
 
-  private _wholeWordChanged(_: React.FormEvent<HTMLElement>, isChecked: boolean) {
+  private _wholeWordChanged = (_: React.FormEvent<HTMLElement>, isChecked: boolean): void => {
     let options = { ...this.state.searchOptions };
     options.wholeWord = isChecked;
 
@@ -98,7 +94,7 @@ export default class Search extends React.Component<ISearchProps, ISearchState> 
       searchOptions: options
     });
     this.props.onSearch(this.state.keyword, options);
-  }
+  };
 
   private _onSearchTextChanged = (
     _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,

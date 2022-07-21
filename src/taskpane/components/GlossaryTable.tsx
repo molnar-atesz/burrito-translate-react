@@ -31,7 +31,6 @@ import { getTheme } from "office-ui-fabric-react/lib/Styling";
 import { IGlossaryItem } from "../types/glossary";
 import { copyAndSortItems } from "../utils/helpers";
 
-
 export interface IGlossaryTableProps {
   source: string;
   target: string;
@@ -81,7 +80,7 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     });
   }
 
-  public render() {
+  public render(): React.ReactNode {
     const { items, columns } = this.state;
 
     return (
@@ -113,9 +112,9 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         this._selection.setAllSelected(false);
       }, 500);
     }
-  }
+  };
 
-  private _getColumns(): IColumn[] {
+  private _getColumns = (): IColumn[] => {
     return [
       this._getLanguageColumn(this.props.source, true),
       this._getLanguageColumn(this.props.target),
@@ -130,9 +129,9 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         data: "string"
       }
     ];
-  }
+  };
 
-  private _getLanguageColumn(lang: string, isSource: boolean = false): IColumn {
+  private _getLanguageColumn = (lang: string, isSource: boolean = false): IColumn => {
     const headerPrefix = isSource ? "From" : "To";
     const columnHeader = `${headerPrefix} (${lang})`;
     const fieldName = isSource ? "original" : "translation";
@@ -150,11 +149,11 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
       onColumnClick: this._onOrderByColumn,
       data: "string"
     };
-  }
+  };
 
-  private _getKey(item: any, _?: number): string {
+  private _getKey = (item: any, _?: number): string => {
     return item.key;
-  }
+  };
 
   private _onOrderByColumn = (_: React.MouseEvent<HTMLElement>, column: IColumn): void => {
     const { columns, items } = this.state;
@@ -183,11 +182,11 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     return (
       <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced>
         {defaultRender!({
-          ...props,
+          ...props
         })}
       </Sticky>
     );
-  }
+  };
 
   private _onRenderRow: IDetailsListProps["onRenderRow"] = props => {
     const alternatingColors: Partial<IDetailsRowStyles> = {
@@ -215,51 +214,55 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
     }
   };
 
-  private _getCommandField(item: IGlossaryItem) {
-    return <Stack horizontal horizontalAlign="space-between" data-selection-disabled={true}>
-      <IconButton
-        iconProps={{ iconName: "Edit" }}
-        data-selection-disabled={true}
-        onClick={_ => {
-          this.props.onEditRow(item);
-        }} />
-      <IconButton
-        iconProps={{ iconName: "Delete" }}
-        data-selection-disabled={true}
-        onClick={_ => {
-          this.props.onDeleteRow(item);
-        }} />
-    </Stack>;
-  }
+  private _getCommandField = (item: IGlossaryItem) => {
+    return (
+      <Stack horizontal horizontalAlign="space-between" data-selection-disabled={true}>
+        <IconButton
+          iconProps={{ iconName: "Edit" }}
+          data-selection-disabled={true}
+          onClick={_ => {
+            this.props.onEditRow(item);
+          }}
+        />
+        <IconButton
+          iconProps={{ iconName: "Delete" }}
+          data-selection-disabled={true}
+          onClick={_ => {
+            this.props.onDeleteRow(item);
+          }}
+        />
+      </Stack>
+    );
+  };
 
-  private _getItemField(item: IGlossaryItem, fieldContent: string, fieldName: string): JSX.Element {
+  private _getItemField = (item: IGlossaryItem, fieldContent: string, fieldName: string): JSX.Element => {
     if (!!item.note && fieldName === "original") {
       return this._getItemFieldWithNote(item, fieldContent);
     } else {
-      return (
-        <div>{fieldContent}</div>
-      );
+      return <div>{fieldContent}</div>;
     }
-  }
+  };
 
-  private _getItemFieldWithNote(item: IGlossaryItem, fieldContent: string) {
+  private _getItemFieldWithNote = (item: IGlossaryItem, fieldContent: string) => {
     const noteCardProps: IPlainCardProps = {
       renderData: item.note,
       onRenderPlainCard: this._onRenderPlainCard,
       directionalHint: DirectionalHint.topRightEdge
     };
-    return (<HoverCard
-      cardDismissDelay={1000}
-      cardOpenDelay={1000}
-      type={HoverCardType.plain}
-      plainCardProps={noteCardProps}
-      className="noteAvailable"
-    >
-      <div>
-        <Text block>{fieldContent}</Text>
-      </div>
-    </HoverCard>);
-  }
+    return (
+      <HoverCard
+        cardDismissDelay={1000}
+        cardOpenDelay={1000}
+        type={HoverCardType.plain}
+        plainCardProps={noteCardProps}
+        className="noteAvailable"
+      >
+        <div>
+          <Text block>{fieldContent}</Text>
+        </div>
+      </HoverCard>
+    );
+  };
 
   private _onRenderPlainCard = (note: string): JSX.Element => {
     return (
@@ -267,5 +270,5 @@ export default class GlossaryTable extends React.Component<IGlossaryTableProps, 
         {note}
       </div>
     );
-  }
+  };
 }

@@ -18,19 +18,17 @@ export default class AddEdit extends React.Component<IAddEditProps, IGlossaryIte
   constructor(props: IAddEditProps) {
     super(props);
     this.state = !!props.item ? props.item : { key: "", original: "", translation: "", note: "" };
-    this._onInputChange = this._onInputChange.bind(this);
-    this._onSave = this._onSave.bind(this);
   }
 
-  private _onInputChange(event) {
+  private _onInputChange = (event): void => {
     const target = event.target;
     const name = target.name;
     this.setState({
       [name]: target.value
     });
-  }
+  };
 
-  private _onSave() {
+  private _onSave = (): void => {
     const normalized = {
       original: this.state.original.trim(),
       translation: this.state.translation.trim(),
@@ -42,9 +40,9 @@ export default class AddEdit extends React.Component<IAddEditProps, IGlossaryIte
       this.props.onSubmit(normalized);
       this.setState({ original: "", translation: "", note: "" });
     }
-  }
+  };
 
-  public render() {
+  public render(): React.ReactNode {
     return (
       <Stack verticalAlign="stretch" tokens={VERTICAL_STACK_TOKENS}>
         <TextField
